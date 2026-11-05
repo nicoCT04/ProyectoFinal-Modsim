@@ -12,20 +12,22 @@ Comandos:
   resumen     Muestra cuántas batallas hay, por tipo, modo y franja de trofeos.
   exportar    Genera CSV anonimizados para subir al repositorio.
 
-Configuración (variables de entorno):
+Configuración (variables de entorno o archivo .env en la raíz del repositorio):
   CR_API_TOKEN   Clave de developer.clashroyale.com (obligatoria).
   CR_BASE_URL    Opcional. Por defecto https://api.clashroyale.com
                  Con el proxy de RoyaleAPI: https://proxy.royaleapi.dev
   CR_SALT        Texto secreto para anonimizar etiquetas al exportar.
 
-Ejemplos:
-  python recolector_cr.py probar --tag "#ABC123"
-  python recolector_cr.py semilla --tags "#ABC123" "#XYZ789"
-  python recolector_cr.py semilla --buscar-clanes --min-miembros 40 --min-puntaje 60000
-  python recolector_cr.py recolectar --minutos 60
-  python recolector_cr.py recolectar --minutos 30 --refrescar-horas 6
-  python recolector_cr.py resumen
-  python recolector_cr.py exportar --salida datos_exportados
+Ejemplos (desde la raíz del repositorio):
+  python -m src.matchmaking.datos.recolector_cr probar --tag "#ABC123"
+  python -m src.matchmaking.datos.recolector_cr semilla --tags "#ABC123" "#XYZ789"
+  python -m src.matchmaking.datos.recolector_cr recolectar --minutos 60
+  python -m src.matchmaking.datos.recolector_cr recolectar --solo-panel --minutos 60 --refrescar-horas 3
+  python -m src.matchmaking.datos.recolector_cr resumen
+  python -m src.matchmaking.datos.recolector_cr exportar
+
+La base por defecto es data/raw/clash_royale.db (excluida de Git). Para usar otra:
+  python -m src.matchmaking.datos.recolector_cr --db "C:\\ruta\\clash_royale.db" resumen
 """
 
 import argparse
@@ -41,8 +43,25 @@ import urllib.error
 import urllib.parse
 import urllib.request
 from datetime import datetime, timezone
+from pathlib import Path
 
-DB_DEFAULT = "clash_royale.db"
+RAIZ = Path(__file__).resolve().parents[3]
+DB_DEFAULT = str(RAIZ / "data" / "raw" / "clash_royale.db")
+SALIDA_DEFAULT = str(RAIZ / "data" / "processed")
+
+
+def cargar_env(ruta=RAIZ / ".env"):
+    """Lee variables CLAVE=valor del .env sin pisar las que ya existen en el entorno."""
+    if not ruta.exists():
+        return
+    for linea in ruta.read_text(encoding="utf-8").splitlines():
+        linea = linea.strip()
+        if not linea or linea.startswith("#") or "=" not in linea:
+            continue
+        clave, valor = linea.split("=", 1)
+        valor = valor.strip().strip('"').strip("'")
+        if valor:
+            os.environ.setdefault(clave.strip(), valor)
 
 
 # ----------------------------------------------------------------------------
@@ -429,7 +448,8 @@ def cmd_exportar(a):
 
 def main():
     ap = argparse.ArgumentParser(description="Recolector de batallas de Clash Royale")
-    ap.add_argument("--db", default=DB_DEFAULT, help="Archivo SQLite (por defecto clash_royale.db)")
+    cargar_env()
+    ap.add_argument("--db", default=DB_DEFAULT, help="Archivo SQLite (por defecto data/raw/clash_royale.db)")
     ap.add_argument("--rps", type=float, default=4.0, help="Solicitudes por segundo (por defecto 4)")
     sub = ap.add_subparsers(dest="cmd", required=True)
 
@@ -473,7 +493,7 @@ def main():
     s.set_defaults(fn=cmd_resumen)
 
     s = sub.add_parser("exportar")
-    s.add_argument("--salida", default="datos_exportados")
+    s.add_argument("--salida", default=SALIDA_DEFAULT)
     s.add_argument("--todos-los-modos", action="store_true", help="No filtrar solo Trophy Road")
     s.set_defaults(fn=cmd_exportar)
 
