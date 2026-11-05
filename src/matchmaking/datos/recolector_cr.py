@@ -31,6 +31,7 @@ La base por defecto es data/raw/clash_royale.db (excluida de Git). Para usar otr
 
 import argparse
 import csv
+import http.client
 import json
 import os
 import sqlite3
@@ -106,7 +107,9 @@ class ClienteCR:
                     espera *= 2
                     continue
                 raise RuntimeError(f"HTTP {e.code} en {url}: {cuerpo}")
-            except (urllib.error.URLError, TimeoutError) as e:
+            except (urllib.error.URLError, http.client.HTTPException, OSError) as e:
+                # Incluye cortes de red, suspensión de la laptop y "Remote end closed connection".
+                # HTTPError ya se atendió arriba; aquí solo llegan fallas de conexión.
                 print(f"  Aviso: error de red ({e}), reintentando en {espera:.0f} s")
                 time.sleep(espera)
                 espera *= 2
