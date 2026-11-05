@@ -18,5 +18,8 @@ Horas en tiempo de Guatemala (UTC−6). Datos de la última línea de cada corri
 | 1 | 5 nov 2026 | 07:58–09:58 | `recolectar --minutos 120` | 6,977 | 131,408 | 131,408 | 79,419 | Bola de nieve desde la semilla. |
 | — | 5 nov 2026 | 10:17 | `panel --n 3000` | — | — | — | — | Panel de 2,744 jugadores (semilla 42). |
 | 2 | 5 nov 2026 | ~12:00–12:15 | `recolectar --solo-panel --minutos 60 --refrescar-horas 4` | 343 | 486 | 131,894 | 79,806 | Solo se refrescaron los consultados antes de ~08:30. |
+| 3a | 5 nov 2026 | 14:06–14:21 | `recolectar --solo-panel --minutos 75 --refrescar-horas 3` | 1,143 | 3,269 | — | — | Se cortó al suspenderse la laptop (`RemoteDisconnected`); lo consultado quedó guardado. |
+| 3b | 5 nov 2026 | 16:13–16:36 | `recolectar --solo-panel --minutos 75 --refrescar-horas 3` | 1,601 | 5,190 | 140,353 | 87,084 | Completa el panel (2,744). Ya con el arreglo de reintentos. |
 
-Pendientes: corridas 3 a 7 (5 nov 14:00, 18:00, 22:00; 6 nov ~07:30 y 12:00) y exportar el CSV.
+Pendientes: corridas 4 a 7 (5 nov ~19:45 y ~23:00; 6 nov ~07:30 y 12:00) y exportar el CSV.
+Perfil del panel desde que se fijó: cubre de 10:00 a 16:59 (Guatemala); faltan 17:00–09:59.
