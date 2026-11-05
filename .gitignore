@@ -2,3 +2,10 @@
 .venv/
 __pycache__/
 data/raw/
+
+# Base SQLite del recolector: contiene tags reales de jugadores
+*.db
+*.db-journal
+
+# Salida por defecto del exportador original
+datos_exportados/
