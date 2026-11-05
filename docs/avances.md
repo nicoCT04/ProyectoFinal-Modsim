@@ -19,4 +19,4 @@ Horas en tiempo de Guatemala (UTC−6). Datos de la última línea de cada corri
 | — | 5 nov 2026 | 10:17 | `panel --n 3000` | — | — | — | — | Panel de 2,744 jugadores (semilla 42). |
 | 2 | 5 nov 2026 | ~12:00–12:15 | `recolectar --solo-panel --minutos 60 --refrescar-horas 4` | 343 | 486 | 131,894 | 79,806 | Solo se refrescaron los consultados antes de ~08:30. |
 
-Pendientes: corridas 3 a 6 (5 nov 14:00, 18:00, 22:00; 6 nov ~07:30 y 12:00), exportar el CSV.
+Pendientes: corridas 3 a 7 (5 nov 14:00, 18:00, 22:00; 6 nov ~07:30 y 12:00) y exportar el CSV.
