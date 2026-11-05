@@ -70,9 +70,9 @@ Script en Python que usa solo la biblioteca estándar. Guarda todo en una base S
 | `panel --n 3000` | Elige un panel fijo de jugadores ya consultados, estratificado por franjas de 1,000 trofeos. |
 | `recolectar --solo-panel --minutos 60 --refrescar-horas 3` | Solo refresca el panel, sin agregar jugadores nuevos. |
 | `resumen` | Muestra conteos por modo, por franja de trofeos y el rango de fechas. |
-| `exportar` | Genera `datos_exportados/batallas.csv` con los tags anonimizados (HMAC con `CR_SALT`). |
+| `exportar` | Genera `data/processed/batallas.csv` con las batallas de Trophy Road y los tags reales. |
 
-**Variables de entorno:** `CR_API_TOKEN` (la clave), `CR_BASE_URL` (para usar el proxy) y `CR_SALT` (texto secreto para anonimizar).
+**Variables de entorno:** `CR_API_TOKEN` (la clave) y `CR_BASE_URL` (para usar el proxy).
 
 **Estructura de la base:**
 - `jugadores`: tag, trofeos, origen, fecha de la última consulta, número de consultas y si pertenece al panel.
@@ -237,7 +237,7 @@ Ya se generó una versión del informe adaptada a Clash Royale (`Informe_Proyect
 ```
 src/matchmaking/datos/recolector_cr.py
 src/matchmaking/datos/caracterizar.py
-data/processed/batallas.csv   # generado con "exportar", tags anonimizados
+data/processed/batallas.csv   # generado con "exportar"
 docs/CONTEXTO_Y_HALLAZGOS.md  # este documento
 ```
 
@@ -247,7 +247,7 @@ clash_royale.db
 *.db
 .env
 ```
-La base tiene los tags reales de los jugadores. La clave de la API y `CR_SALT` tampoco deben aparecer en ningún archivo del repositorio.
+La base no se sube por tamaño (~360 MB). La clave de la API no debe aparecer en ningún archivo del repositorio. Los tags no se anonimizan (ver `decisiones.md`, D7).
 
 **Nota sobre el tamaño:** si `batallas.csv` supera los 100 MB, GitHub lo rechaza. En ese caso, súbanlo comprimido (`.zip`) o filtrado al período de estudio.
 
@@ -258,7 +258,7 @@ La base tiene los tags reales de los jugadores. La clave de la API y `CR_SALT` t
 | Tarea | Estado |
 |---|---|
 | Refrescar el panel cada ~4 h hasta el 6 de noviembre a mediodía | En curso (corrida 2 de ~6 hecha; próxima desde las 14:00) |
-| Exportar el CSV anonimizado y subirlo al repositorio | Pendiente (6 nov) |
+| Exportar el CSV y subirlo al repositorio | Pendiente (6 nov) |
 | Medir tiempos de espera reales con cronómetro (15–20 partidas por integrante) | Pendiente |
 | Programar el simulador de eventos discretos | Se puede empezar ya con los datos actuales |
 | Calibrar el escenario base contra la distribución de diferencias | Después del simulador |

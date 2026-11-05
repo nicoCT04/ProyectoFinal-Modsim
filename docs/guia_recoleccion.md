@@ -9,7 +9,6 @@ En la raíz del repositorio, crear `.env` a partir de `.env.example`:
 ```dotenv
 CR_API_TOKEN=la_clave
 CR_BASE_URL=https://proxy.royaleapi.dev
-CR_SALT=texto_secreto_compartido_por_el_equipo
 ```
 
 El recolector usa solo la biblioteca estándar; no hay que instalar nada.
@@ -58,16 +57,17 @@ juegue más de 30 entre dos corridas.
 ## 4. Cierre (6 nov, después de la última corrida)
 
 1. `caracterizar` final; copiar los números a `CONTEXTO_Y_HALLAZGOS.md` (sección 7) si cambian.
-2. Exportar el CSV anonimizado:
+2. Exportar el CSV:
    ```powershell
    python -m src.matchmaking.datos.recolector_cr --db "C:\Users\Owner\Downloads\clash_royale.db" exportar
    ```
    Queda en `data/processed/batallas.csv`.
-3. Revisar que el CSV no tenga tags reales (columnas `j1`, `j2` y `batalla` de 16 caracteres
-   hexadecimales) y su tamaño. Si pasa de 100 MB, comprimirlo o filtrarlo al período de estudio.
-4. Commit: `data: exportar batallas de Trophy Road anonimizadas`.
+3. Revisar su tamaño (con los datos del 5 nov pesa ~12 MB). Si pasa de 100 MB, comprimirlo o
+   filtrarlo al período de estudio.
+4. Commit: `data: exportar batallas de Trophy Road`.
 
 ## 5. Qué nunca se sube
 
-`*.db`, `.env`, el valor de `CR_SALT` y cualquier captura o registro con la clave. El
-`.gitignore` ya excluye `*.db`, `.env` y `data/raw/`.
+`.env` y cualquier captura o registro con la clave de la API. La base `*.db` tampoco, por tamaño.
+El `.gitignore` ya excluye `*.db`, `.env` y `data/raw/`. Los tags de jugadores no se anonimizan
+(decisión D7).

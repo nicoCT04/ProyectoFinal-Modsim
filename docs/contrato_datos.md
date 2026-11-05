@@ -7,12 +7,12 @@ de Trophy Road (`type = PvP`, `gameMode = Ladder`), ordenada por hora.
 
 | Columna | Tipo | Unidad / valores | Descripción |
 |---|---|---|---|
-| `batalla` | texto (16) | HMAC | Id anonimizado de la batalla |
+| `batalla` | texto | `battleTime\|tag\|tag` | Id de la batalla: hora más los dos tags ordenados |
 | `battle_time_utc` | texto | `YYYYMMDDTHHMMSS.000Z`, UTC | Hora de la batalla según la API |
 | `tipo` | texto | `PvP` | Tipo de batalla |
 | `modo` | texto | `Ladder` | Modo de juego |
 | `arena_id` | entero | id de la API | Arena |
-| `j1`, `j2` | texto (16) | HMAC | Jugadores anonimizados (`team` y `opponent`) |
+| `j1`, `j2` | texto | `#TAG` | Tags de los jugadores (`team` y `opponent`) |
 | `j*_trofeos_inicio` | entero | trofeos | Trofeos al iniciar la batalla |
 | `j*_cambio` | entero | trofeos | Trofeos ganados o perdidos |
 | `j*_coronas` | entero | 0–3 | Coronas obtenidas |

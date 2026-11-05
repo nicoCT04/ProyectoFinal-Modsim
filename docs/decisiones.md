@@ -51,8 +51,8 @@ python -m src.matchmaking.datos.caracterizar --desde-perfil 2026-11-05T16:17
 En 79,419 batallas la diferencia máxima fue 64 trofeos (media 10.8, P90 31). Las referencias
 ±100/±300/±600 del informe quedan fuera de rango; se cambian por ±20/±40/±60.
 
-## D7. Anonimización (5 nov 2026)
+## D7. Tags sin anonimizar (5 nov 2026)
 
-Los tags y el id de batalla se exportan con HMAC-SHA256 (16 caracteres) usando `CR_SALT`. La base
-con tags reales y el valor de `CR_SALT` nunca se suben. Todo el equipo usa el mismo `CR_SALT`
-para que los ids coincidan entre exportaciones.
+El equipo decidió no anonimizar: el CSV exporta los tags tal como los da la API, que son datos
+públicos del juego. Así se puede rastrear cada batalla y jugador hasta la API. Se descarta
+`CR_SALT`. La base SQLite no se sube por tamaño (~360 MB), no por privacidad.

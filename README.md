@@ -17,7 +17,7 @@ Se utilizará simulación de eventos discretos y optimización multiobjetivo med
 - [x] Recolector con base SQLite, deduplicación y panel fijo (`recolector_cr.py`).
 - [x] Primera recolección: 131,408 batallas, 79,419 de Trophy Road (5 nov 2026).
 - [ ] Refrescar el panel cada ~4 h hasta el 6 nov a mediodía (ver `docs/guia_recoleccion.md`).
-- [ ] Exportar `data/processed/batallas.csv` anonimizado.
+- [ ] Exportar `data/processed/batallas.csv`.
 - [ ] Implementar el simulador.
 - [ ] Integrar NSGA-II.
 - [ ] Ejecutar experimentos y validación.

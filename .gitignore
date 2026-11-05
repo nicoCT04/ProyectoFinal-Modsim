@@ -3,7 +3,7 @@
 __pycache__/
 data/raw/
 
-# Base SQLite del recolector: contiene tags reales de jugadores
+# Base SQLite del recolector: pesa cientos de MB (GitHub rechaza archivos de más de 100 MB)
 *.db
 *.db-journal
 
