@@ -10,13 +10,12 @@ Comandos:
   semilla     Agrega jugadores iniciales (desde etiquetas o desde clanes).
   recolectar  Descarga el historial de batallas de los jugadores en cola.
   resumen     Muestra cuántas batallas hay, por tipo, modo y franja de trofeos.
-  exportar    Genera CSV anonimizados para subir al repositorio.
+  exportar    Genera el CSV de batallas de Trophy Road para subir al repositorio.
 
 Configuración (variables de entorno o archivo .env en la raíz del repositorio):
   CR_API_TOKEN   Clave de developer.clashroyale.com (obligatoria).
   CR_BASE_URL    Opcional. Por defecto https://api.clashroyale.com
                  Con el proxy de RoyaleAPI: https://proxy.royaleapi.dev
-  CR_SALT        Texto secreto para anonimizar etiquetas al exportar.
 
 Ejemplos (desde la raíz del repositorio):
   python -m src.matchmaking.datos.recolector_cr probar --tag "#ABC123"
@@ -32,8 +31,6 @@ La base por defecto es data/raw/clash_royale.db (excluida de Git). Para usar otr
 
 import argparse
 import csv
-import hashlib
-import hmac
 import json
 import os
 import sqlite3
@@ -407,10 +404,6 @@ def cmd_resumen(a):
 
 
 def cmd_exportar(a):
-    sal = os.environ.get("CR_SALT")
-    if not sal:
-        sys.exit("Definan CR_SALT (un texto secreto) para anonimizar. No lo suban al repositorio.")
-    anon = lambda t: hmac.new(sal.encode(), (t or "").encode(), hashlib.sha256).hexdigest()[:16] if t else ""
     con = conectar(a.db)
     os.makedirs(a.salida, exist_ok=True)
     filtro = "WHERE b.es_ladder=1" if not a.todos_los_modos else ""
@@ -440,10 +433,10 @@ def cmd_exportar(a):
                     "dif_trofeos_abs"])
         for r in filas:
             dif = abs(r[6] - r[12]) if r[6] is not None and r[12] is not None else ""
-            w.writerow([anon(r[0]), r[1], r[2], r[3], r[4],
-                        anon(r[5]), r[6], r[7], r[8], r[9], nivel_medio(r[10]),
-                        anon(r[11]), r[12], r[13], r[14], r[15], nivel_medio(r[16]), dif])
-    print(f"Exportadas {len(filas)} batallas a {ruta} (etiquetas anonimizadas).")
+            w.writerow([r[0], r[1], r[2], r[3], r[4],
+                        r[5], r[6], r[7], r[8], r[9], nivel_medio(r[10]),
+                        r[11], r[12], r[13], r[14], r[15], nivel_medio(r[16]), dif])
+    print(f"Exportadas {len(filas)} batallas a {ruta}.")
 
 
 def main():
