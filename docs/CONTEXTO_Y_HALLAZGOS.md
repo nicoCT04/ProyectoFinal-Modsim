@@ -125,7 +125,7 @@ Horas en tiempo de Guatemala (UTC−6).
 | — | 5 nov 2026 | 10:17 | `panel --n 3000` | — | — | Panel de 2,744 jugadores (semilla aleatoria 42). |
 | 2 | 5 nov 2026 | ~12:00–12:10 | `recolectar --solo-panel --minutos 60 --refrescar-horas 4` | 343 | 486 | Solo se refrescaron los jugadores consultados antes de las ~08:30; el resto aún no cumplía 4 h. ≈1.4 batallas nuevas por jugador en 4 h. |
 
-> Para agregar filas: anotar la fecha, la hora de inicio y fin, y copiar la línea final "Listo. Consultados: X. Batallas nuevas: Y" de cada corrida.
+> La bitácora vigente, con las corridas siguientes, está en `docs/avances.md`; el procedimiento, en `docs/guia_recoleccion.md`.
 
 **Plan de cierre (sin esperar una semana):** refrescar el panel cada ~4 horas entre el 5 y el 6 de noviembre, hasta tener **más de 24 horas continuas** de batallas. La limitación (no hay diferencia entre días de semana y fin de semana) se declara.
 
@@ -235,8 +235,9 @@ Ya se generó una versión del informe adaptada a Clash Royale (`Informe_Proyect
 
 **Sí subir:**
 ```
-recolector/recolector_cr.py
-datos/batallas.csv            # generado con "exportar", tags anonimizados
+src/matchmaking/datos/recolector_cr.py
+src/matchmaking/datos/caracterizar.py
+data/processed/batallas.csv   # generado con "exportar", tags anonimizados
 docs/CONTEXTO_Y_HALLAZGOS.md  # este documento
 ```
 
