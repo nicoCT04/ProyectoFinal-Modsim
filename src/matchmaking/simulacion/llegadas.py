@@ -10,8 +10,8 @@ donde peso es perfil_horario.peso de parametros.json (24 valores que suman 1), d
 promedio diario de lambda_h es tasa_media. Dentro de cada tramo, el número de llegadas es
 Poisson(lambda_h * duración) y sus tiempos son uniformes (propiedad del proceso de Poisson).
 
-Trofeos: se muestrean por la inversa de la distribución empírica, interpolando los 101 cuantiles
-de trofeos_solicitudes.cuantiles, y se redondean a entero.
+Trofeos: se muestrean de la distribución empírica exacta (frecuencias), que conserva la
+acumulación de jugadores en los pisos de arena.
 """
 
 import json
@@ -27,8 +27,19 @@ def cargar_parametros(ruta=PARAMETROS):
     return json.loads(Path(ruta).read_text(encoding="utf-8"))
 
 
-def muestrear_trofeos(cuantiles, n, rng):
-    """n trofeos enteros con la distribución empírica dada por 101 cuantiles (P0..P100)."""
+def muestrear_trofeos(distribucion, n, rng):
+    """
+    n trofeos enteros de la distribución empírica de trofeos_solicitudes.
+
+    Usa 'frecuencias' (valores exactos con su conteo), que conserva la acumulación en los pisos de
+    arena. Si no está, interpola los 101 cuantiles.
+    """
+    frec = distribucion.get("frecuencias")
+    if frec:
+        valores = np.asarray(frec["valores"], dtype=np.int64)
+        p = np.asarray(frec["conteos"], dtype=float)
+        return rng.choice(valores, size=n, p=p / p.sum())
+    cuantiles = distribucion["cuantiles"]
     u = rng.random(n) * 100
     return np.rint(np.interp(u, np.arange(len(cuantiles)), cuantiles)).astype(np.int64)
 
@@ -59,5 +70,5 @@ def generar_solicitudes(escenario, parametros, rng):
         tiempos.append(rng.uniform(t, fin_tramo, n))
         t = fin_tramo
     tiempos = np.sort(np.concatenate(tiempos)) if tiempos else np.empty(0)
-    trofeos = muestrear_trofeos(parametros["trofeos_solicitudes"]["cuantiles"], len(tiempos), rng)
+    trofeos = muestrear_trofeos(parametros["trofeos_solicitudes"], len(tiempos), rng)
     return tiempos, trofeos
