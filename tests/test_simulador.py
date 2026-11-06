@@ -72,6 +72,22 @@ def test_ventana_mas_amplia_reduce_la_espera():
     assert amplia["dif_media"] > angosta["dif_media"]
 
 
+def test_numeros_aleatorios_comunes():
+    """Con la misma semilla, todas las políticas reciben exactamente las mismas solicitudes."""
+    a = simular(ventana_fija(20), CORTO, 8, detalle=True)
+    b = simular(adaptativa(0, 3, 64), CORTO, 8, detalle=True)
+    assert a["n_llegadas"] == b["n_llegadas"]
+    esc = {**ESCENARIO_POR_DEFECTO, **CORTO}
+    t1, r1 = generar_solicitudes(esc, PARAMETROS, np.random.default_rng(8))
+    t2, r2 = generar_solicitudes(esc, PARAMETROS, np.random.default_rng(8))
+    assert np.array_equal(t1, t2) and np.array_equal(r1, r2)
+
+
+def test_escenario_invalido():
+    with pytest.raises(ValueError):
+        simular(ventana_fija(20), {"tasa_media": 1, "duracion": 3600}, 1)
+
+
 def test_politica_invalida():
     with pytest.raises(ValueError):
         validar(adaptativa(50, 1, 20))
