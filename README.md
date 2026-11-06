@@ -16,8 +16,9 @@ Se utilizará simulación de eventos discretos y optimización multiobjetivo med
 - [x] Identificar Trophy Road: `type = PvP` y `gameMode = Ladder`.
 - [x] Recolector con base SQLite, deduplicación y panel fijo (`recolector_cr.py`).
 - [x] Primera recolección: 131,408 batallas, 79,419 de Trophy Road (5 nov 2026).
-- [ ] Refrescar el panel cada ~4 h hasta el 6 nov a mediodía (ver `docs/guia_recoleccion.md`).
-- [ ] Exportar `data/processed/batallas.csv`.
+- [x] Refrescar el panel cada ~4 h hasta el 6 nov a mediodía (8 corridas, ver `docs/avances.md`).
+- [x] Exportar `data/processed/batallas.csv` (114,079 batallas de Trophy Road).
+- [ ] Generar `parametros.json`: ajuste 1–3 nov, validación 4 nov (ver `docs/decisiones.md`, D5 y D8).
 - [ ] Implementar el simulador.
 - [ ] Integrar NSGA-II.
 - [ ] Ejecutar experimentos y validación.

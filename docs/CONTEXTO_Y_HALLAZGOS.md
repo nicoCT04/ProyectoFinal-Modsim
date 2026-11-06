@@ -167,7 +167,9 @@ Por hora (Guatemala), la diferencia media ronda 11 al mediodía y sube a 12–13
 
 **Esto respalda la hipótesis central del proyecto:** cuando hay menos jugadores disponibles, el sistema acepta rivales más alejados.
 
-> ⚠️ **No usar todavía el perfil por hora de estos datos.** Hay un pico artificial entre las 8:00 y las 9:00 porque fue cuando corrió el recolector. El perfil por hora debe salir del panel con 24 horas o más de cobertura.
+> ⚠️ **Actualización del 6 nov:** el perfil por hora y la calibración se hacen con las batallas del 1 al 4 de noviembre; las del 5 y 6 tienen un sesgo cerca de cada consulta (ver `decisiones.md`, D8).
+>
+> **No usar todavía el perfil por hora de estos datos.** Hay un pico artificial entre las 8:00 y las 9:00 porque fue cuando corrió el recolector. El perfil por hora debe salir del panel con 24 horas o más de cobertura.
 
 ### 7.3 Los datos no traen el tiempo de espera
 
@@ -257,8 +259,8 @@ La base no se sube por tamaño (~360 MB). La clave de la API no debe aparecer en
 
 | Tarea | Estado |
 |---|---|
-| Refrescar el panel cada ~4 h hasta el 6 de noviembre a mediodía | En curso (corrida 2 de ~6 hecha; próxima desde las 14:00) |
-| Exportar el CSV y subirlo al repositorio | Pendiente (6 nov) |
+| Refrescar el panel cada ~4 h hasta el 6 de noviembre a mediodía | Hecho (8 corridas; ver `avances.md`) |
+| Exportar el CSV y subirlo al repositorio | Hecho: `data/processed/batallas.csv` |
 | Medir tiempos de espera reales con cronómetro (15–20 partidas por integrante) | Pendiente |
 | Programar el simulador de eventos discretos | Se puede empezar ya con los datos actuales |
 | Calibrar el escenario base contra la distribución de diferencias | Después del simulador |
