@@ -180,7 +180,7 @@ Los trofeos faltantes no se reemplazan por cero; esas batallas se excluyen.
 ## Simulador
 
 ```powershell
-.\.venv\Scripts\python.exe -m pytest                                  # verificación (21 pruebas)
+.\.venv\Scripts\python.exe -m pytest                                  # verificación (23 pruebas)
 .\.venv\Scripts\python.exe -m src.matchmaking.simulacion.calibrar     # calibración y validación (~10 min)
 ```
 
