@@ -109,3 +109,31 @@ el pseudocódigo.
 | `test_ventana_infinita_equivale_a_emparejar_al_azar` | con Δ = ∞ y poca demanda, la diferencia media es E\|X − Y\| de la distribución de trofeos |
 | `test_ventana_mas_amplia_reduce_la_espera` | una ventana fija más amplia reduce la espera y aumenta la diferencia |
 | `test_motor_igual_a_la_referencia_ingenua` | el motor optimizado coincide con una implementación directa del pseudocódigo |
+
+## 6. Calibración y escenarios
+
+La base reproduce el sistema real con Δ0 = 0, α = 1.75 trofeos/s y Δmax = 44, con
+`tasa_media = 5` como unidad de tiempo (decisiones.md, D11). Los escenarios y políticas están en
+`configs/escenarios.yaml`.
+
+Resultados de referencia (un día simulado, promedio de 3 semillas):
+
+| Escenario | Política | Espera media (s) | Espera P95 (s) | Diferencia media | Cobertura |
+|---|---|---|---|---|---|
+| base | base (calibrada) | 17.89 | 57.7 | 12.34 | 1.000 |
+| base | fija ±20 | 19.71 | 89.9 | 8.72 | 1.000 |
+| base | fija ±40 | 9.86 | 44.3 | 19.17 | 1.000 |
+| base | fija ±60 | 6.81 | 29.9 | 28.29 | 1.000 |
+| baja demanda (2.5/s) | base | 27.70 | 98.4 | 15.10 | 1.000 |
+| baja demanda | fija ±20 | 39.05 | 180.3 | 8.78 | 1.000 |
+| alta demanda (10/s) | base | 12.18 | 36.9 | 9.52 | 1.000 |
+| alta demanda | fija ±20 | 10.13 | 45.3 | 8.69 | 1.000 |
+
+Ya se ve el compromiso: ±20 da la menor diferencia pero la peor espera P95; ±40 y ±60 esperan menos
+pero superan D_max = 15. La base queda entre ellas. Son corridas de prueba con 3 semillas; los
+experimentos finales usan 30.
+
+**Tiempo de ejecución.** Un día simulado tarda ~1 s con ventana fija y ~4–11 s con ventana
+creciente, según la demanda. Para NSGA-II está el escenario `optimizacion` (4 h, ~1.5 s); las
+políticas candidatas se validan después en `base` con 30 semillas.
+

@@ -39,3 +39,12 @@ conserva la última consulta de cada jugador.
   Excluidas: 71,385 fuera del período, 2,348 fuera de la franja, 8 duplicadas.
 - `caracterizar.py`: `parametros.json` listo para el simulador.
 - Siguiente tarea: simulador de eventos discretos con `parametros.json` como entrada (R2).
+
+### Simulador (6 nov 2026)
+
+- `simular(politica, escenario, semilla)` en `src/matchmaking/simulacion/motor.py`; 21 pruebas de
+  verificación pasan (`python -m pytest`).
+- Calibración: base = ventana creciente Δ0 = 0, α = 1.75, Δmax = 44 (D11). Validación contra el
+  4 nov: media 12.36 frente a 11.65; P99 igual; subestima los empates exactos.
+- Siguiente tarea: NSGA-II sobre el escenario `optimizacion` (R3) y experimentos con 30 semillas (R4).
+

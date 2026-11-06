@@ -19,7 +19,7 @@ Se utilizará simulación de eventos discretos y optimización multiobjetivo med
 - [x] Refrescar el panel cada ~4 h hasta el 6 nov a mediodía (8 corridas, ver `docs/avances.md`).
 - [x] Exportar `data/processed/batallas.csv` (114,079 batallas de Trophy Road).
 - [x] Generar `parametros.json`: ajuste 1–3 nov, validación 4 nov (ver `docs/decisiones.md`, D5, D8 y D9).
-- [ ] Implementar el simulador.
+- [x] Implementar el simulador, verificarlo y calibrarlo (`docs/modelo.md`).
 - [ ] Integrar NSGA-II.
 - [ ] Ejecutar experimentos y validación.
 - [ ] Generar tablas y gráficas.
@@ -176,6 +176,28 @@ noviembre (hora de Guatemala) y sin duplicados. **Ajuste: 1–3 nov. Validación
 estructura de cada archivo está en `docs/contrato_datos.md`.
 
 Los trofeos faltantes no se reemplazan por cero; esas batallas se excluyen.
+
+## Simulador
+
+```powershell
+.\.venv\Scripts\python.exe -m pytest                                  # verificación (21 pruebas)
+.\.venv\Scripts\python.exe -m src.matchmaking.simulacion.calibrar     # calibración y validación (~10 min)
+```
+
+Uso desde Python:
+
+```python
+from src.matchmaking.simulacion.escenarios import cargar
+from src.matchmaking.simulacion.motor import simular
+
+cfg = cargar()
+r = simular(cfg["politicas"]["base"], cfg["escenarios"]["base"], semilla=1)
+print(r["espera_media"], r["dif_media"], r["cobertura"])
+```
+
+`politica` es `{"delta0", "alfa", "delta_max"}`; las de referencia, los escenarios y los umbrales
+de D10 están en `configs/escenarios.yaml`. El modelo completo (diagrama, variables, unidades,
+pseudocódigo y verificación) está en [`docs/modelo.md`](docs/modelo.md).
 
 ## Trabajo paralelo del equipo
 
