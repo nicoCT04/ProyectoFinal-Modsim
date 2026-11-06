@@ -42,7 +42,7 @@ conserva la última consulta de cada jugador.
 
 ### Simulador (6 nov 2026)
 
-- `simular(politica, escenario, semilla)` en `src/matchmaking/simulacion/motor.py`; 21 pruebas de
+- `simular(politica, escenario, semilla)` en `src/matchmaking/simulacion/motor.py`; 23 pruebas de
   verificación pasan (`python -m pytest`).
 - Calibración: base = ventana creciente Δ0 = 0, α = 1.75, Δmax = 44 (D11). Validación contra el
   4 nov: media 12.36 frente a 11.65; P99 igual; subestima los empates exactos.

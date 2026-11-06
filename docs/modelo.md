@@ -109,6 +109,8 @@ el pseudocódigo.
 | `test_ventana_infinita_equivale_a_emparejar_al_azar` | con Δ = ∞ y poca demanda, la diferencia media es E\|X − Y\| de la distribución de trofeos |
 | `test_ventana_mas_amplia_reduce_la_espera` | una ventana fija más amplia reduce la espera y aumenta la diferencia |
 | `test_motor_igual_a_la_referencia_ingenua` | el motor optimizado coincide con una implementación directa del pseudocódigo |
+| `test_numeros_aleatorios_comunes` | con la misma semilla, todas las políticas reciben las mismas solicitudes |
+| `test_escenario_invalido`, `test_politica_invalida` | se rechazan claves desconocidas, Δ0 > Δmax y valores negativos |
 
 ## 6. Calibración y escenarios
 
