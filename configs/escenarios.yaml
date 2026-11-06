@@ -1,0 +1,47 @@
+# Escenarios y políticas del estudio. Se cargan con src.matchmaking.simulacion.escenarios.cargar().
+# Unidades: tasas en solicitudes/s, tiempos en s, ventanas en trofeos, alfa en trofeos/s.
+
+comun:
+  duracion_s: 86400        # un día completo, con el perfil horario real
+  hora_inicio: 0           # hora de Guatemala en t = 0
+  dt: 1.0                  # revisión de la cola cada segundo
+  calentamiento_s: 600     # llegadas excluidas de las métricas al inicio
+  margen_cierre_s: 300     # llegadas excluidas al final
+
+escenarios:
+  base:                    # demanda de referencia; unidad de tiempo del estudio (decisiones.md, D11)
+    tasa_media: 5.0
+  baja_demanda:            # sensibilidad: mitad de la demanda
+    tasa_media: 2.5
+  alta_demanda:            # sensibilidad: doble de la demanda
+    tasa_media: 10.0
+  revision_5s:             # sensibilidad: la cola se revisa cada 5 s
+    tasa_media: 5.0
+    dt: 5.0
+  optimizacion:            # horizonte corto para NSGA-II (~1-2 s por corrida); validar luego en "base"
+    tasa_media: 5.0
+    duracion_s: 14400
+    hora_inicio: 10
+
+politicas:
+  base:                    # réplica calibrada del sistema real (results/calibracion.json)
+    delta0: 0
+    alfa: 1.75
+    delta_max: 44
+  fija_20:
+    delta0: 20
+    alfa: 0
+    delta_max: 20
+  fija_40:
+    delta0: 40
+    alfa: 0
+    delta_max: 40
+  fija_60:
+    delta0: 60
+    alfa: 0
+    delta_max: 60
+
+umbrales:                  # decisiones.md, D10
+  d_max: 15                # diferencia media máxima, trofeos
+  cobertura_min: 0.95
+  reduccion_espera_min: 0.10
