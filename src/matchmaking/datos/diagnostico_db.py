@@ -5,9 +5,9 @@ Reproduce los hallazgos de docs/CONTEXTO_Y_HALLAZGOS.md (sección 7) y muestra
 el estado del panel después de cada corrida. Solo lee la base: no la modifica.
 
 Uso (desde la raíz del repositorio):
-  python -m src.matchmaking.datos.caracterizar
-  python -m src.matchmaking.datos.caracterizar --db "C:\\ruta\\clash_royale.db"
-  python -m src.matchmaking.datos.caracterizar --desde 2026-11-01 --desde-perfil 2026-11-05T14:00
+  python -m src.matchmaking.datos.diagnostico_db
+  python -m src.matchmaking.datos.diagnostico_db --db "C:\\ruta\\clash_royale.db"
+  python -m src.matchmaking.datos.diagnostico_db --desde 2026-11-01 --desde-perfil 2026-11-05T14:00
 """
 
 import argparse

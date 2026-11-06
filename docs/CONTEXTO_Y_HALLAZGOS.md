@@ -238,6 +238,8 @@ Ya se generó una versión del informe adaptada a Clash Royale (`Informe_Proyect
 **Sí subir:**
 ```
 src/matchmaking/datos/recolector_cr.py
+src/matchmaking/datos/diagnostico_db.py
+src/matchmaking/datos/procesar.py
 src/matchmaking/datos/caracterizar.py
 data/processed/batallas.csv   # generado con "exportar"
 docs/CONTEXTO_Y_HALLAZGOS.md  # este documento

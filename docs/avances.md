@@ -11,7 +11,7 @@
 ### Recolección del estudio (recolector SQLite)
 
 Horas en tiempo de Guatemala (UTC−6). Datos de la última línea de cada corrida
-("Listo. Consultados: X. Batallas nuevas: Y") y del `caracterizar` posterior.
+("Listo. Consultados: X. Batallas nuevas: Y") y del `diagnostico_db` posterior.
 
 | # | Fecha | Hora | Comando | Consultados | Batallas nuevas | Batallas totales | Trophy Road | Notas |
 |---|---|---|---|---|---|---|---|---|

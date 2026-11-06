@@ -35,7 +35,7 @@ SQLite en `data/raw/`). Los comandos, el calendario de corridas y el cierre est√
 
 ```powershell
 python -m src.matchmaking.datos.recolector_cr resumen
-python -m src.matchmaking.datos.caracterizar
+python -m src.matchmaking.datos.diagnostico_db
 ```
 
 Las secciones siguientes describen la extracci√≥n piloto con `recolectar.py`, que se conserva
