@@ -1,0 +1,44 @@
+{
+  "entrada": "data/processed/batallas.csv",
+  "batallas_leidas": 114079,
+  "excluidas_por_motivo": {
+    "no_trophy_road": 0,
+    "trofeos_faltantes": 0,
+    "fuera_de_periodo": 71385,
+    "fuera_de_franja": 2348,
+    "duplicada": 8
+  },
+  "batallas_validas": 40338,
+  "por_conjunto": {
+    "ajuste": {
+      "batallas": 23798,
+      "dias_gt": [
+        "2026-11-01",
+        "2026-11-02",
+        "2026-11-03"
+      ]
+    },
+    "validacion": {
+      "batallas": 16540,
+      "dias_gt": [
+        "2026-11-04"
+      ]
+    }
+  },
+  "configuracion": {
+    "zona_horaria": "America/Guatemala (UTC-6)",
+    "dias_ajuste": [
+      "2026-11-01",
+      "2026-11-03"
+    ],
+    "dias_validacion": [
+      "2026-11-04",
+      "2026-11-04"
+    ],
+    "franja_trofeos": [
+      5000,
+      12000
+    ],
+    "tolerancia_duplicado_s": 2
+  }
+}
