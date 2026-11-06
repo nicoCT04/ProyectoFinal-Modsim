@@ -23,6 +23,36 @@ de Trophy Road (`type = PvP`, `gameMode = Ladder`), ordenada por hora.
 `j1` es el lado `team` del battlelog de quien se consultó; no implica nada sobre quién buscó
 rival primero.
 
+## `data/processed/batallas_estudio.csv`
+
+Generado con `python -m src.matchmaking.datos.procesar`. Subconjunto limpio de `batallas.csv`
+(filtros en `decisiones.md`, D9); las exclusiones por motivo están en `calidad_datos.json`.
+
+| Columna | Tipo | Unidad / valores | Descripción |
+|---|---|---|---|
+| `batalla`, `battle_time_utc`, `j1`, `j2` | texto | igual que en `batallas.csv` | Identificación |
+| `fecha_gt`, `hora_gt` | texto, entero | fecha y hora 0–23 de Guatemala (UTC−6) | Momento de la batalla |
+| `conjunto` | texto | `ajuste` (1–3 nov) o `validacion` (4 nov) | Uso en el estudio |
+| `j*_trofeos_inicio`, `j*_cambio` | entero | trofeos | Igual que en `batallas.csv` |
+| `trofeos_medios` | decimal | trofeos | Promedio de los dos jugadores |
+| `franja` | entero | 5000, 6000, …, 11000 | Franja de 1,000 de `trofeos_medios` |
+| `dif_trofeos_abs` | entero | trofeos | `|j1_trofeos_inicio − j2_trofeos_inicio|` |
+
+## `data/processed/parametros.json`
+
+Generado con `python -m src.matchmaking.datos.caracterizar`. Entrada del simulador.
+
+| Clave | Contenido | Uso |
+|---|---|---|
+| `metadatos` | Fuente, conjuntos, unidades y tipo de dato (real, forma relativa o no observado) | Trazabilidad en el informe |
+| `trofeos_solicitudes.cuantiles` | 101 cuantiles (P0–P100) de los trofeos de ambos jugadores en ajuste | Muestrear trofeos: `u ~ U(0,1)`, interpolar `100u` |
+| `trofeos_solicitudes.proporcion_por_franja` | Proporción por franja de 1,000 | Escenarios por franja |
+| `perfil_horario.peso` | 24 pesos que suman 1 (índice 0 = 00:00–00:59 de Guatemala) | Forma de la tasa de llegadas no homogénea |
+| `diferencias_referencia.ajuste` | n, media, desviación, mediana, P75–P99, máximo, proporción de ceros, histograma de 5 en 5, por franja y media por hora | Calibrar el escenario base |
+| `diferencias_referencia.validacion` | Lo mismo para el 4 nov | Referencia real de la Parte 6 |
+
+La tasa absoluta de llegadas y el tiempo de espera **no** están en el archivo: no se observan.
+
 ## Base SQLite (no se sube)
 
 `data/raw/clash_royale.db`, tablas `jugadores`, `batallas` y `participantes`. Ver

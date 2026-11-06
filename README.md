@@ -18,7 +18,7 @@ Se utilizará simulación de eventos discretos y optimización multiobjetivo med
 - [x] Primera recolección: 131,408 batallas, 79,419 de Trophy Road (5 nov 2026).
 - [x] Refrescar el panel cada ~4 h hasta el 6 nov a mediodía (8 corridas, ver `docs/avances.md`).
 - [x] Exportar `data/processed/batallas.csv` (114,079 batallas de Trophy Road).
-- [ ] Generar `parametros.json`: ajuste 1–3 nov, validación 4 nov (ver `docs/decisiones.md`, D5 y D8).
+- [x] Generar `parametros.json`: ajuste 1–3 nov, validación 4 nov (ver `docs/decisiones.md`, D5, D8 y D9).
 - [ ] Implementar el simulador.
 - [ ] Integrar NSGA-II.
 - [ ] Ejecutar experimentos y validación.
@@ -157,33 +157,25 @@ y batallas repetidas. No son aún el conjunto final del estudio.
 | Historial vacío | Probar con jugadores que hayan jugado recientemente |
 | No se encuentra el módulo `src` | Ejecutar desde la raíz del repositorio |
 
-## Siguiente paso: procesamiento
+## Preparación de los datos para el simulador
 
-Implementar `src/matchmaking/datos/procesar.py` para:
+Dos pasos, desde la raíz del repositorio y sin dependencias externas:
 
-1. Leer los JSON guardados sin modificarlos.
-2. Examinar `type`, `gameMode`, `arena`, `team` y `opponent`.
-3. Definir y documentar los filtros de Trophy Road 1 contra 1.
-4. Comprobar la presencia de trofeos iniciales en ambos participantes.
-5. Deduplicar batallas recuperadas en distintas consultas o jugadores.
-6. Calcular la diferencia absoluta de trofeos.
-7. Exportar tablas y registrar las exclusiones.
+```powershell
+python -m src.matchmaking.datos.procesar
+python -m src.matchmaking.datos.caracterizar
+```
 
-Los trofeos faltantes no se reemplazarán por cero.
+| Paso | Lee | Escribe |
+|---|---|---|
+| `procesar.py` | `data/processed/batallas.csv` | `batallas_estudio.csv` (40,338 batallas) y `calidad_datos.json` (exclusiones por motivo) |
+| `caracterizar.py` | `batallas_estudio.csv` | `parametros.json`: trofeos de las solicitudes, perfil horario y diferencias de referencia |
 
-Archivos previstos:
+Filtros: Trophy Road, ambos trofeos presentes, ambos jugadores en 5,000–11,999, días 1–4 de
+noviembre (hora de Guatemala) y sin duplicados. **Ajuste: 1–3 nov. Validación: 4 nov.** La
+estructura de cada archivo está en `docs/contrato_datos.md`.
 
-| Archivo | Contenido |
-|---|---|
-| `data/processed/batallas.csv` | Una fila por batalla válida y única |
-| `data/processed/participaciones.csv` | Una fila por participante y batalla |
-| `data/processed/calidad_datos.json` | Duplicados, faltantes y exclusiones |
-
-Después, `caracterizar.py` generará la distribución de trofeos y el
-perfil horario con los días destinados al ajuste.
-
-Los días de validación se definirán antes de calibrar y se mantendrán
-separados de los usados para construir las entradas.
+Los trofeos faltantes no se reemplazan por cero; esas batallas se excluyen.
 
 ## Trabajo paralelo del equipo
 

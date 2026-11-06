@@ -74,3 +74,16 @@ batallas entre consultas. El mecanismo no está claro; se declara como limitaci�
 Consecuencia: las batallas del 5 y 6 de noviembre no se usan ni para calibrar ni para el perfil
 horario. **Ajuste: 1–3 nov. Validación (reservado): 4 nov.** El pico de 8:00–9:00 del 5 nov
 (sección 7.2 del contexto) es el mismo fenómeno, causado por la primera corrida.
+
+## D9. Filtros y parámetros del estudio (6 nov 2026)
+
+- **Franja:** se conservan las batallas en que **ambos** jugadores están en 5,000–11,999 trofeos
+  (se excluyen 2,348). La franja de una batalla es la de su promedio de trofeos.
+- **Duplicados:** misma pareja, mismos trofeos y cambio, con 2 s o menos de diferencia en
+  `battleTime` (8 casos en 1–4 nov).
+- **Trofeos de las solicitudes:** cada batalla de ajuste aporta los trofeos de sus dos jugadores
+  (47,596 valores). Refleja la muestra, no la población: las franjas de 7,000–9,999 están
+  subrepresentadas (D4).
+- **Percentiles:** interpolación lineal, igual que `numpy.percentile` por defecto.
+- **Referencias resultantes:** ajuste media 11.51, mediana 6, P90 32, P99 42, máximo 60;
+  validación media 11.65, mediana 6, P90 32, P99 42, máximo 63.
