@@ -35,16 +35,13 @@ Se excluyen guerras de clanes, eventos, desafíos y amistosas. Ranked queda fuer
 Sesgo declarado: las franjas 7,000–9,999 quedaron con menos jugadores porque la semilla venía de
 un clan de 5,000–7,000.
 
-## D5. Perfil horario solo con batallas posteriores a la creación del panel (5 nov 2026)
+## D5. Perfil horario con las batallas del 1 al 4 de noviembre (revisada el 6 nov 2026)
 
-Hay un pico artificial entre las 8:00 y las 9:00 (Guatemala) porque fue cuando corrió la bola de
-nieve; el pico sigue apareciendo aunque se filtre solo al panel, porque el panel salió de los
-jugadores encontrados en esa corrida. El perfil de llegadas por hora se arma con las batallas
-del panel desde que se fijó (5 nov 10:17 Guatemala = `2026-11-05T16:17` UTC):
-
-```
-python -m src.matchmaking.datos.caracterizar --desde-perfil 2026-11-05T16:17
-```
+Primero se propuso usar las batallas del panel posteriores a su creación. Se descartó por la
+decisión D8: esas batallas se concentran justo antes de cada consulta. El perfil de llegadas por
+hora se arma con las batallas de Trophy Road del 1 al 4 de noviembre (hora de Guatemala; 42,694
+batallas), que quedaron lejos de cualquier consulta. El perfil sale suave: mínimo a la 1:00 y
+máximo entre las 11:00 y las 13:00.
 
 ## D6. Ventanas fijas de referencia: ±20, ±40 y ±60 (5 nov 2026)
 
@@ -56,3 +53,24 @@ En 79,419 batallas la diferencia máxima fue 64 trofeos (media 10.8, P90 31). La
 El equipo decidió no anonimizar: el CSV exporta los tags tal como los da la API, que son datos
 públicos del juego. Así se puede rastrear cada batalla y jugador hasta la API. Se descarta
 `CR_SALT`. La base SQLite no se sube por tamaño (~360 MB), no por privacidad.
+
+## D8. Sesgo en las batallas cercanas a cada consulta (6 nov 2026)
+
+Al refrescar el panel cada ~3.7 h, las batallas guardadas se concentran en los 30–60 min previos
+a la consulta de cada jugador, y repiten ese patrón en cada ciclo. Esas batallas además tienen
+diferencias de trofeos mucho menores:
+
+| Período (hora de Guatemala) | Batallas | Media | Mediana | P90 | Máximo |
+|---|---|---|---|---|---|
+| 1–3 nov | 25,170 | 11.6 | 6 | 32 | 60 |
+| 4 nov | 17,524 | 11.8 | 6 | 32 | 63 |
+| 5–6 nov (con refrescos del panel) | 54,013 | 7.3 | 1 | 26 | 62 |
+| 6 nov, 07:00–08:30 (cerca de una consulta) | 4,008 | 5.8 | 1 | 22 | 49 |
+
+Lo que se descartó: no son batallas duplicadas (solo 41 casos con 1 s de diferencia); los rivales
+son distintos y tienen cartas evolucionadas; solo ~3 % de los jugadores llena el límite de 30
+batallas entre consultas. El mecanismo no está claro; se declara como limitación.
+
+Consecuencia: las batallas del 5 y 6 de noviembre no se usan ni para calibrar ni para el perfil
+horario. **Ajuste: 1–3 nov. Validación (reservado): 4 nov.** El pico de 8:00–9:00 del 5 nov
+(sección 7.2 del contexto) es el mismo fenómeno, causado por la primera corrida.
