@@ -20,11 +20,11 @@ Escenario (dict)
   calentamiento_s   las llegadas anteriores no entran a las métricas       [s]
   margen_cierre_s   las llegadas de los últimos segundos no entran         [s]
 
-Optimización exacta: en cada revisión solo se examinan las solicitudes cuya situación pudo
-cambiar (las recién llegadas, las que tienen una recién llegada a menos de delta_max trofeos y las
-que todavía están ampliando su ventana). Las demás ya fallaron con la misma ventana y la misma
-cola, así que volver a revisarlas no puede formar parejas. El resultado es idéntico al de revisar
-toda la cola.
+Optimización exacta: la compatibilidad entre dos solicitudes solo cambia si una de ellas acaba
+de llegar o si su ventana creció. En cada revisión se examinan esas solicitudes y las que están a
+su alcance; el resto ya falló con la misma cola y las mismas ventanas, así que volver a revisarlo
+no puede formar parejas. tests/test_simulador.py comprueba que el resultado es idéntico al de
+revisar toda la cola.
 """
 
 import math
@@ -103,19 +103,20 @@ def simular(politica, escenario, semilla, parametros=None, detalle=False):
             siguiente += 1
         activos += len(nuevos)
 
-        # 2. Solicitudes a revisar.
-        revisar = set(nuevos)
-        for i in nuevos:
-            lo = bisect_left(por_trofeo, (r[i] - dmax, -math.inf, -1))
-            hi = bisect_left(por_trofeo, (r[i] + dmax, math.inf, n))
-            for _, _, j in por_trofeo[lo:hi]:
-                revisar.add(j)
+        # 2. Solicitudes a revisar: las que cambiaron (recién llegadas o con ventana que creció) y
+        #    todas las que están a su alcance, porque su compatibilidad con ellas pudo cambiar.
+        cambiaron = list(nuevos)
         if t_tope > 0:
-            # Las que siguen ampliando su ventana: llegaron después de t - dt - t_tope (sufijo de cola).
+            # Siguen ampliando su ventana las que llegaron después de t - dt - t_tope (sufijo de cola).
             desde = bisect_left(cola, t - dt - t_tope, key=lambda x: llegada[x])
-            for i in cola[desde:]:
-                if en_cola[i]:
-                    revisar.add(i)
+            ya = set(nuevos)
+            cambiaron.extend(i for i in cola[desde:] if en_cola[i] and i not in ya)
+        revisar = set()
+        for i in cambiaron:
+            alcance = ventana(t - llegada[i])
+            lo = bisect_left(por_trofeo, (r[i] - alcance, -math.inf, -1))
+            hi = bisect_left(por_trofeo, (r[i] + alcance, math.inf, n))
+            revisar.update(j for _, _, j in por_trofeo[lo:hi])
 
         # 3. Revisión de la más antigua a la más reciente.
         for i in sorted(revisar):
@@ -130,7 +131,7 @@ def simular(politica, escenario, semilla, parametros=None, detalle=False):
                 dl = ri - por_trofeo[izq][0] if izq >= 0 else math.inf
                 dr = por_trofeo[der][0] - ri if der < len(por_trofeo) else math.inf
                 d = min(dl, dr)
-                if d > di or (mejor is not None and d > mejor[0]):
+                if d == math.inf or d > di or (mejor is not None and d > mejor[0]):
                     break
                 if dl <= dr:
                     _, aj, j = por_trofeo[izq]
