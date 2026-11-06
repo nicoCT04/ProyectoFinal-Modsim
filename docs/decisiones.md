@@ -142,3 +142,45 @@ en el juego hay muchos más jugadores con exactamente los mismos trofeos esperan
 produce una muestra de 5 solicitudes/s. Los máximos de 60–64 son casos raros (menos del 1 %) que
 una ventana de 44 no genera. Ambas cosas se declaran como limitación.
 
+
+## D12. Configuración de la optimización (6 nov 2026)
+
+Se fija antes de correr NSGA-II. Configuración en `configs/optimizacion.yaml`; la técnica está
+documentada en `docs/tecnica_nsga2.md`.
+
+| Elemento | Valor | Justificación |
+|---|---|---|
+| Variables | x = (Δ0, α, e), con Δmax = Δ0 + e | Toda x dentro de los límites es una política válida (Δ0 ≤ Δmax); no hay que reparar soluciones. |
+| Límites | Δ0 ∈ [0, 40] trofeos; α ∈ [0.05, 10] trofeos/s; e ∈ [0, 80] trofeos | Incluyen a la base (0, 1.75, 44) y a las ventanas fijas ±20 y ±40; Δmax llega a 120, casi el triple del P99 real (42). |
+| Objetivos | espera media y diferencia media, promedio de 3 semillas | Las dos métricas del compromiso (D10). |
+| Restricciones | dif_media ≤ 15; cobertura ≥ 0.95 | D10. Si no se forma ninguna pareja (`nan`), la solución es infactible. |
+| Escenario | `optimizacion` (10:00–14:00, tasa media 5/s) | ~1.5 s por corrida con la base; el día completo es demasiado lento para 3,000 simulaciones. |
+| Semillas | evaluación 1000–1002 (iguales para todas); NSGA-II 1; búsqueda aleatoria 2 | Números aleatorios comunes; no se tocan las de calibración, validación ni experimentos. |
+| Presupuesto | NSGA-II con población 40 y 25 generaciones = 1,000 evaluaciones; búsqueda aleatoria con 1,000 | Mismo presupuesto para comparar. |
+| Operadores | SBX (p = 0.9, η = 15), mutación polinomial (η = 20), torneo binario | Valores por defecto de pymoo (Deb et al., 2002). |
+| Hipervolumen | punto de referencia (60 s, 15 trofeos), sobre el frente factible de todas las evaluaciones | Mide la parte útil del frente: espera razonable y dentro de D_max. |
+| Paralelización | `multiprocessing.Pool` con 11 procesos (`StarmapParallelization` de pymoo) | Tiempo real en una Mac de 12 núcleos: NSGA-II 12.5 min, búsqueda aleatoria 5.2 min. |
+
+**Resultado.** Hipervolumen final: NSGA-II 540.07, búsqueda aleatoria 527.14 (+2.5 %). El de NSGA-II
+deja de crecer desde la generación 17 (539.2 → 540.1), así que el presupuesto alcanzó. Las 344
+políticas del frente de NSGA-II y las 88 del de la búsqueda aleatoria cumplen las restricciones al
+volver a simularlas (`results/verificacion_*.csv`).
+
+**Candidatas para los experimentos** (en `configs/escenarios.yaml`). Se eligieron dentro de la región
+que responde la pregunta del estudio (espera ≤ la de la base en hora pico, 14.83 s); el codo es la
+solución más cercana al punto ideal con los objetivos normalizados en esa región:
+
+| Nombre | Δ0 | α | Δmax | Espera (opt.) | Dif. (opt.) | Criterio |
+|---|---|---|---|---|---|---|
+| `nsga_codo` | 18.70 | 0.564 | 39.54 | 11.13 | 10.99 | codo del frente |
+| `nsga_menor_espera` | 20.83 | 1.322 | 75.32 | 8.64 | 14.96 | menor espera que cumple D_max |
+| `nsga_intermedia` | 19.46 | 0.900 | 79.93 | 9.79 | 12.97 | menor espera con diferencia ≤ 13 |
+| `nsga_menor_dif` | 15.23 | 0.198 | 35.17 | 14.73 | 7.95 | menor diferencia sin esperar más que la base |
+| `aleatoria_mejor` | 17.64 | 0.659 | 92.83 | 10.99 | 11.29 | codo del frente aleatorio (control) |
+
+**Hora pico frente a día completo.** En el escenario `optimizacion` la ventana fija ±20 domina a la
+base (14.19 s y 8.74 trofeos frente a 14.83 s y 11.03). Con mucha demanda casi siempre hay un rival
+cercano; la ventana creciente ayuda en las horas de poca demanda. Por eso las candidatas se validan
+en el día completo y en baja demanda. Una vista previa con las semillas 1000–1002 (no sustituye a
+los experimentos) muestra que `nsga_menor_espera` supera D_max fuera de la hora pico (16.5 en el día
+completo, 20.2 en baja demanda) y que `nsga_codo` cumple y mejora a la base en los tres escenarios.
