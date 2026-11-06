@@ -100,3 +100,45 @@ Se fijan antes de calibrar el simulador y de correr NSGA-II, para que no se ajus
 
 Una política adaptativa solo se declara mejor si cumple D_max y la cobertura mínima en el escenario
 evaluado y además alcanza la reducción relevante. Si ninguna lo logra, se reporta así.
+
+## D11. Escenario base: réplica calibrada con ventana creciente (6 nov 2026)
+
+**Cambio respecto de la planificación.** La planificación proponía que el escenario base fuera una
+ventana fija. Con el simulador se comprobó que **ninguna ventana fija reproduce los datos reales**:
+con ±D la diferencia queda casi uniforme entre 0 y D (±60 da media ~28 con cualquier demanda),
+mientras que la real tiene 25 % de ceros, mediana 6 y cola hasta ~42 (P99). Esa forma la produce
+una ventana que crece con la espera. Por eso:
+
+- **Base** = réplica del sistema real: Δ(w) = min(Δmax, Δ0 + α·w), calibrada.
+- **Ventanas fijas ±20, ±40 y ±60** = políticas de referencia (lo que pregunta el informe).
+- **Mejora** = políticas que encuentre NSGA-II, comparadas contra la base y contra las fijas.
+
+**Unidad de tiempo.** Si la tasa de llegadas y α se multiplican por k, las diferencias no cambian
+y las esperas se dividen entre k: los datos solo identifican α / tasa. Se fija
+`tasa_media = 5 solicitudes/s` y se calibra α. Las esperas en segundos dependen de ese supuesto;
+las comparaciones relativas entre políticas no. Si el equipo mide esperas reales con cronómetro
+(espera media real W), se reescala multiplicando tasa y α por (espera simulada de la base / W).
+
+**Calibración** (`python -m src.matchmaking.simulacion.calibrar`, `results/calibracion.json`):
+rejilla de α ∈ {1.25, …, 3} y Δmax ∈ {44, …, 64}, Δ0 = 0, dos días simulados por punto contra
+la distribución de 1–3 nov. Elegida: **Δ0 = 0, α = 1.75 trofeos/s, Δmax = 44 trofeos**.
+
+**Validación contra el 4 nov** (cinco días simulados con semillas nuevas):
+
+| Estadístico | Real | Simulado | Error |
+|---|---|---|---|
+| Media | 11.65 | 12.36 | +0.72 (+6 %) |
+| Mediana | 6 | 9 | +3 |
+| P75 | 21 | 19 | −2 |
+| P90 | 32 | 29 | −3 |
+| P95 | 37 | 35 | −2 |
+| P99 | 42 | 42 | 0 |
+| Proporción de ceros | 0.26 | 0.07 | −0.18 |
+| Máximo | 63 | 44 | −19 |
+
+MAE del histograma (cajas de 5 trofeos): 0.030. Kolmogórov-Smirnov: 0.20. MAE del perfil horario:
+0.0001. La media y la cola se reproducen bien. El modelo **subestima las batallas con diferencia 0**:
+en el juego hay muchos más jugadores con exactamente los mismos trofeos esperando a la vez de lo que
+produce una muestra de 5 solicitudes/s. Los máximos de 60–64 son casos raros (menos del 1 %) que
+una ventana de 44 no genera. Ambas cosas se declaran como limitación.
+
