@@ -43,6 +43,7 @@ ESCENARIO_POR_DEFECTO = {
     "margen_cierre_s": 300.0,
 }
 INTERVALO_SERIE_S = 60.0
+CLAVES_ESCENARIO = {"tasa_media", "duracion_s", *ESCENARIO_POR_DEFECTO}
 
 _PARAMETROS = None
 
@@ -61,6 +62,11 @@ def _percentil(valores, p):
 def simular(politica, escenario, semilla, parametros=None, detalle=False):
     t0_reloj = time.perf_counter()
     d0, alfa, dmax = validar(politica)
+    desconocidas = set(escenario) - CLAVES_ESCENARIO
+    faltan = {"tasa_media", "duracion_s"} - set(escenario)
+    if desconocidas or faltan:
+        raise ValueError(f"Escenario inválido. Claves desconocidas: {sorted(desconocidas)}; "
+                         f"faltan: {sorted(faltan)}")
     esc = {**ESCENARIO_POR_DEFECTO, **escenario}
     dt = float(esc["dt"])
     duracion = float(esc["duracion_s"])
