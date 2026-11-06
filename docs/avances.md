@@ -21,5 +21,14 @@ Horas en tiempo de Guatemala (UTC−6). Datos de la última línea de cada corri
 | 3a | 5 nov 2026 | 14:06–14:21 | `recolectar --solo-panel --minutos 75 --refrescar-horas 3` | 1,143 | 3,269 | — | — | Se cortó al suspenderse la laptop (`RemoteDisconnected`); lo consultado quedó guardado. |
 | 3b | 5 nov 2026 | 16:13–16:36 | `recolectar --solo-panel --minutos 75 --refrescar-horas 3` | 1,601 | 5,190 | 140,353 | 87,084 | Completa el panel (2,744). Ya con el arreglo de reintentos. |
 
-Pendientes: corridas 4 a 7 (5 nov ~19:45 y ~23:00; 6 nov ~07:30 y 12:00) y exportar el CSV.
-Perfil del panel desde que se fijó: cubre de 10:00 a 16:59 (Guatemala); faltan 17:00–09:59.
+| 4 | 5 nov 2026 | 20:53–21:32 | ciclo `recolectar --solo-panel --minutos 75 --refrescar-horas 2.5` cada 3 h | ≈2,744 | 7,121 | — | — | Primera vuelta del ciclo nocturno (`Downloads\corridas_nocturnas.log`). |
+| 5 | 6 nov 2026 | 00:32–01:07 | ídem | 2,744 | 5,216 | — | — | Única vuelta cuya salida quedó en el log. |
+| 6 | 6 nov 2026 | 04:07–04:44 | ídem | ≈2,744 | 5,141 | — | — | |
+| 7 | 6 nov 2026 | 07:44–08:27 | ídem | ≈2,744 | 6,294 | — | — | |
+| 8 | 6 nov 2026 | 11:27–12:07 | ídem | 2,744 | 6,578 | 170,703 | 114,079 | Última corrida. Integridad de la base: `quick_check` correcto. |
+
+Las batallas nuevas de las corridas 4–8 salen de `recolectada_en` en la base; el log de PowerShell solo
+guardó la salida de la corrida 5. "≈2,744": la corrida terminó en el tiempo esperado, pero la base solo
+conserva la última consulta de cada jugador.
+
+**Recolección cerrada el 6 nov 2026.** Ver la decisión D8 sobre el sesgo cerca de cada consulta.
