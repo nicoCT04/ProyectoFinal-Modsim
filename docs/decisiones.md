@@ -87,3 +87,16 @@ horario. **Ajuste: 1–3 nov. Validación (reservado): 4 nov.** El pico de 8:00�
 - **Percentiles:** interpolación lineal, igual que `numpy.percentile` por defecto.
 - **Referencias resultantes:** ajuste media 11.51, mediana 6, P90 32, P99 42, máximo 60;
   validación media 11.65, mediana 6, P90 32, P99 42, máximo 63.
+
+## D10. Umbrales del experimento, fijados antes de evaluar (6 nov 2026)
+
+Se fijan antes de calibrar el simulador y de correr NSGA-II, para que no se ajusten a los resultados.
+
+| Umbral | Valor | Justificación |
+|---|---|---|
+| **D_max**: diferencia media de trofeos máxima aceptable | **15 trofeos** | La referencia real (ajuste, 1–3 nov) es 11.5. Un margen de ~30 % deja espacio para el compromiso entre espera y equilibrio, y 15 trofeos es la mitad de lo que se gana en una victoria (~30), por lo que el jugador no percibe la diferencia. Sigue por debajo del P90 real (32). |
+| **Cobertura mínima**: emparejadas / llegadas | **95 %** | Una política que deja sin rival a más de 1 de cada 20 solicitudes no es aceptable para el operador, aunque su espera media sea baja. Se mide sin contar las solicitudes que llegan en los últimos `w_max` segundos de la simulación, que no tienen tiempo de emparejarse. |
+| **Reducción relevante de la espera media** | **≥ 10 %** frente a la ventana fija de referencia **y** el intervalo de confianza del 95 % de la diferencia pareada excluye el 0 | Menos de 10 % es difícil de defender como mejora práctica. Las políticas se comparan con las mismas semillas (números aleatorios comunes), por lo que la diferencia se evalúa par a par en las 30 repeticiones. |
+
+Una política adaptativa solo se declara mejor si cumple D_max y la cobertura mínima en el escenario
+evaluado y además alcanza la reducción relevante. Si ninguna lo logra, se reporta así.
