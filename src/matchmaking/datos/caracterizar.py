@@ -20,6 +20,7 @@ import argparse
 import csv
 import json
 import math
+from collections import Counter
 from datetime import datetime, timezone
 from pathlib import Path
 
@@ -137,11 +138,17 @@ def caracterizar(filas):
         },
         "trofeos_solicitudes": {
             "descripcion": "Trofeos al iniciar de cada jugador en las batallas de ajuste (2 por batalla). "
-                           "Para muestrear: u ~ U(0,1) e interpolar u*100 en 'cuantiles'.",
+                           "Para muestrear se usa 'frecuencias' (distribución empírica exacta): conserva la "
+                           "acumulación en los pisos de arena (6,500, 11,500, 5,500...), que explica parte de "
+                           "las batallas con diferencia 0. 'cuantiles' es un resumen.",
             "conjunto": "ajuste",
             **{k: v for k, v in describir(trofeos).items() if k in ("n", "media", "desv", "mediana", "max")},
             "min": trofeos[0],
             "cuantiles": [round(percentil(trofeos, p), 2) for p in range(101)],
+            "frecuencias": {
+                "valores": sorted(set(trofeos)),
+                "conteos": [c for _, c in sorted(Counter(trofeos).items())],
+            },
             "proporcion_por_franja": {str(k): round(v / len(trofeos), 5) for k, v in sorted(por_franja.items())},
         },
         "perfil_horario": {

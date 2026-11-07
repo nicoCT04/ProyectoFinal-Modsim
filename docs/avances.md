@@ -39,3 +39,28 @@ conserva la última consulta de cada jugador.
   Excluidas: 71,385 fuera del período, 2,348 fuera de la franja, 8 duplicadas.
 - `caracterizar.py`: `parametros.json` listo para el simulador.
 - Siguiente tarea: simulador de eventos discretos con `parametros.json` como entrada (R2).
+
+### Simulador (6 nov 2026)
+
+- `simular(politica, escenario, semilla)` en `src/matchmaking/simulacion/motor.py`; 23 pruebas de
+  verificación pasan (`python -m pytest`).
+- Calibración: base = ventana creciente Δ0 = 0, α = 1.75, Δmax = 44 (D11). Validación contra el
+  4 nov: media 12.36 frente a 11.65; P99 igual; subestima los empates exactos.
+- Siguiente tarea: NSGA-II sobre el escenario `optimizacion` (R3) y experimentos con 30 semillas (R4).
+
+
+### Optimización (6 nov 2026)
+
+- Revisión del simulador (R2): sin errores. El motor coincide con la referencia ingenua en 10 casos
+  adicionales (α con decimales, Δ0 > 0, tope de la ventana, dt = 5 s, α = 0.05).
+- `optimizacion/problema.py`, `nsga2.py`, `aleatoria.py` y `verificar.py`; `pymoo` en
+  `requirements.txt`. Configuración en `configs/optimizacion.yaml` (D12).
+- NSGA-II: 1,000 evaluaciones, 344 soluciones en el frente, hipervolumen 540.07 (12.5 min con 11
+  procesos). Búsqueda aleatoria: 1,000 evaluaciones, 88 soluciones, hipervolumen 527.14.
+- Todas las políticas de los dos frentes cumplen las restricciones al volver a simularlas;
+  `python -m pytest` pasa 30 pruebas (7 nuevas en `tests/test_optimizacion.py`).
+- Cinco candidatas en `configs/escenarios.yaml` (`nsga_codo`, `nsga_menor_espera`,
+  `nsga_intermedia`, `nsga_menor_dif`, `aleatoria_mejor`).
+- Investigación de la técnica (Parte 2) en `docs/tecnica_nsga2.md`.
+- Siguiente tarea: experimentos finales con las semillas 5000–5029 en los escenarios `base`,
+  `baja_demanda`, `alta_demanda` y `revision_5s` (R4).

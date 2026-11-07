@@ -1,0 +1,68 @@
+# Escenarios y políticas del estudio. Se cargan con src.matchmaking.simulacion.escenarios.cargar().
+# Unidades: tasas en solicitudes/s, tiempos en s, ventanas en trofeos, alfa en trofeos/s.
+
+comun:
+  duracion_s: 86400        # un día completo, con el perfil horario real
+  hora_inicio: 0           # hora de Guatemala en t = 0
+  dt: 1.0                  # revisión de la cola cada segundo
+  calentamiento_s: 600     # llegadas excluidas de las métricas al inicio
+  margen_cierre_s: 300     # llegadas excluidas al final
+
+escenarios:
+  base:                    # demanda de referencia; unidad de tiempo del estudio (decisiones.md, D11)
+    tasa_media: 5.0
+  baja_demanda:            # sensibilidad: mitad de la demanda
+    tasa_media: 2.5
+  alta_demanda:            # sensibilidad: doble de la demanda
+    tasa_media: 10.0
+  revision_5s:             # sensibilidad: la cola se revisa cada 5 s
+    tasa_media: 5.0
+    dt: 5.0
+  optimizacion:            # horizonte corto para NSGA-II (~1-2 s por corrida); validar luego en "base"
+    tasa_media: 5.0
+    duracion_s: 14400
+    hora_inicio: 10
+
+politicas:
+  base:                    # réplica calibrada del sistema real (results/calibracion.json)
+    delta0: 0
+    alfa: 1.75
+    delta_max: 44
+  fija_20:
+    delta0: 20
+    alfa: 0
+    delta_max: 20
+  fija_40:
+    delta0: 40
+    alfa: 0
+    delta_max: 40
+  fija_60:
+    delta0: 60
+    alfa: 0
+    delta_max: 60
+  # Candidatas de la optimización (decisiones.md, D12; results/pareto.csv y aleatoria_frente.csv).
+  nsga_codo:               # codo del frente con espera <= la de la base; domina a la base en los 3 escenarios
+    delta0: 18.7037
+    alfa: 0.563581
+    delta_max: 39.5397
+  nsga_menor_espera:       # menor espera que cumple D_max en hora pico; supera D_max en día completo
+    delta0: 20.8279
+    alfa: 1.32224
+    delta_max: 75.3162
+  nsga_intermedia:         # menor espera con diferencia <= 13 en hora pico
+    delta0: 19.4611
+    alfa: 0.900068
+    delta_max: 79.9257
+  nsga_menor_dif:          # menor diferencia sin esperar más que la base en hora pico
+    delta0: 15.2274
+    alfa: 0.197853
+    delta_max: 35.1719
+  aleatoria_mejor:         # control: codo del frente de la búsqueda aleatoria, mismo criterio que nsga_codo
+    delta0: 17.6379
+    alfa: 0.658913
+    delta_max: 92.8262
+
+umbrales:                  # decisiones.md, D10
+  d_max: 15                # diferencia media máxima, trofeos
+  cobertura_min: 0.95
+  reduccion_espera_min: 0.10
