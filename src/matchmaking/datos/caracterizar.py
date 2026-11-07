@@ -1,39 +1,35 @@
 """
-Estadísticos descriptivos de la base del recolector (recolector_cr.py).
+Genera data/processed/parametros.json, la entrada del simulador, a partir de las batallas limpias.
 
-Reproduce los hallazgos de docs/CONTEXTO_Y_HALLAZGOS.md (sección 7) y muestra
-el estado del panel después de cada corrida. Solo lee la base: no la modifica.
+Entrada: data/processed/batallas_estudio.csv (generado con procesar.py)
+
+Contenido de parametros.json:
+  trofeos_solicitudes     Distribución empírica de los trofeos de quien busca rival (ambos jugadores
+                          de cada batalla de ajuste), como 101 cuantiles para muestrear por la inversa.
+  perfil_horario          Peso relativo de cada hora de Guatemala (24 valores que suman 1), con las
+                          batallas de ajuste y validación (1-4 nov; decisiones.md, D5). Solo da la forma:
+                          la tasa absoluta de llegadas no se observa y se fija por escenario.
+  diferencias_referencia  Distribución de |r_i - r_j| en ajuste (para calibrar) y en validación
+                          (referencia real de la Parte 6), total, por franja y por hora.
 
 Uso (desde la raíz del repositorio):
   python -m src.matchmaking.datos.caracterizar
-  python -m src.matchmaking.datos.caracterizar --db "C:\\ruta\\clash_royale.db"
-  python -m src.matchmaking.datos.caracterizar --desde 2026-11-01 --desde-perfil 2026-11-05T14:00
 """
 
 import argparse
-import sqlite3
+import csv
+import json
+import math
+from datetime import datetime, timezone
 from pathlib import Path
 
-from .recolector_cr import DB_DEFAULT
-
-DESFASE_GT = -6  # Guatemala es UTC-6 todo el año
-
-
-def a_battle_time(texto):
-    """'2026-11-05T14:00' o '2026-11-05' (UTC) -> '20261105T140000' para comparar con battle_time."""
-    if not texto:
-        return None
-    t = texto.replace("-", "").replace(":", "")
-    if "T" not in t:
-        t += "T"
-    fecha, hora = t.split("T", 1)
-    return fecha + "T" + hora.ljust(6, "0")[:6]
+RAIZ = Path(__file__).resolve().parents[3]
+PROCESADOS = RAIZ / "data" / "processed"
+ANCHO_HISTOGRAMA = 5  # trofeos
 
 
 def percentil(ordenados, p):
     """Percentil con interpolación lineal (igual que numpy por defecto)."""
-    if not ordenados:
-        return float("nan")
     k = (len(ordenados) - 1) * p / 100
     i = int(k)
     j = min(i + 1, len(ordenados) - 1)
@@ -42,117 +38,146 @@ def percentil(ordenados, p):
 
 def describir(valores):
     v = sorted(valores)
-    if not v:
-        return {"n": 0}
+    n = len(v)
+    media = sum(v) / n
+    desv = math.sqrt(sum((x - media) ** 2 for x in v) / (n - 1)) if n > 1 else 0.0
     return {
-        "n": len(v),
-        "media": sum(v) / len(v),
-        "mediana": percentil(v, 50),
-        "p90": percentil(v, 90),
-        "p99": percentil(v, 99),
+        "n": n,
+        "media": round(media, 3),
+        "desv": round(desv, 3),
+        "mediana": round(percentil(v, 50), 2),
+        "p75": round(percentil(v, 75), 2),
+        "p90": round(percentil(v, 90), 2),
+        "p95": round(percentil(v, 95), 2),
+        "p99": round(percentil(v, 99), 2),
         "max": v[-1],
+        "prop_cero": round(sum(1 for x in v if x == 0) / n, 4),
     }
 
 
-def fila(etiqueta, d):
-    if d["n"] == 0:
-        return f"  {etiqueta:<14} n=0"
-    return (f"  {etiqueta:<14} n={d['n']:>7,}  media={d['media']:5.1f}  mediana={d['mediana']:4.0f}"
-            f"  p90={d['p90']:4.0f}  p99={d['p99']:4.0f}  max={d['max']:4.0f}")
+def histograma(valores, ancho):
+    tope = max(valores)
+    cajas = [0] * (tope // ancho + 1)
+    for x in valores:
+        cajas[x // ancho] += 1
+    n = len(valores)
+    return {
+        "ancho": ancho,
+        "desde": [i * ancho for i in range(len(cajas))],
+        "proporcion": [round(c / n, 5) for c in cajas],
+    }
 
 
-def diferencias(con, desde=None):
-    """(battle_time, trofeos del jugador 'team', |dif|) de cada batalla de Trophy Road."""
-    sql = """
-        SELECT b.battle_time, t.trofeos_inicio, ABS(t.trofeos_inicio - o.trofeos_inicio)
-        FROM batallas b
-        JOIN participantes t ON t.batalla_id = b.batalla_id AND t.lado = 'team'
-        JOIN participantes o ON o.batalla_id = b.batalla_id AND o.lado = 'opponent'
-        WHERE b.es_ladder = 1 AND t.trofeos_inicio IS NOT NULL AND o.trofeos_inicio IS NOT NULL
-    """
-    params = ()
-    if desde:
-        sql += " AND b.battle_time >= ?"
-        params = (desde,)
-    return con.execute(sql, params).fetchall()
+def diferencias(filas):
+    difs = [f["dif"] for f in filas]
+    out = describir(difs)
+    out["histograma"] = histograma(difs, ANCHO_HISTOGRAMA)
+    por_franja = {}
+    for f in filas:
+        por_franja.setdefault(f["franja"], []).append(f["dif"])
+    out["por_franja"] = {
+        str(k): {kk: d[kk] for kk in ("n", "media", "mediana", "p90", "max")}
+        for k, d in ((k, describir(v)) for k, v in sorted(por_franja.items()))
+    }
+    por_hora = [[] for _ in range(24)]
+    for f in filas:
+        por_hora[f["hora"]].append(f["dif"])
+    out["media_por_hora_gt"] = [round(sum(h) / len(h), 3) if h else None for h in por_hora]
+    return out
 
 
-def batallas_panel(con, desde=None):
-    """battle_time de las batallas de Trophy Road en que participa al menos un jugador del panel."""
-    sql = """
-        SELECT DISTINCT b.batalla_id, b.battle_time
-        FROM batallas b
-        JOIN participantes p ON p.batalla_id = b.batalla_id
-        JOIN jugadores j ON j.tag = p.tag
-        WHERE b.es_ladder = 1 AND j.panel = 1
-    """
-    params = ()
-    if desde:
-        sql += " AND b.battle_time >= ?"
-        params = (desde,)
-    return [r[1] for r in con.execute(sql, params)]
+def leer(ruta):
+    filas = []
+    with open(ruta, newline="", encoding="utf-8") as f:
+        for r in csv.DictReader(f):
+            filas.append({
+                "conjunto": r["conjunto"],
+                "fecha": r["fecha_gt"],
+                "hora": int(r["hora_gt"]),
+                "t1": int(r["j1_trofeos_inicio"]),
+                "t2": int(r["j2_trofeos_inicio"]),
+                "franja": int(r["franja"]),
+                "dif": int(r["dif_trofeos_abs"]),
+            })
+    return filas
 
 
-def hora_gt(battle_time):
-    return (int(battle_time[9:11]) + DESFASE_GT) % 24
+def caracterizar(filas):
+    ajuste = [f for f in filas if f["conjunto"] == "ajuste"]
+    validacion = [f for f in filas if f["conjunto"] == "validacion"]
+    if not ajuste or not validacion:
+        raise SystemExit("Faltan batallas de ajuste o de validación. Corran procesar.py primero.")
+
+    trofeos = sorted([f["t1"] for f in ajuste] + [f["t2"] for f in ajuste])
+    por_franja = {}
+    for t in trofeos:
+        por_franja[t // 1000 * 1000] = por_franja.get(t // 1000 * 1000, 0) + 1
+
+    conteo_hora = [0] * 24
+    for f in filas:
+        conteo_hora[f["hora"]] += 1
+    dias = len({f["fecha"] for f in filas})
+
+    return {
+        "metadatos": {
+            "generado_utc": datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ"),
+            "fuente": "API oficial de Clash Royale, /v1/players/{tag}/battlelog (vía proxy.royaleapi.dev)",
+            "entrada": "data/processed/batallas_estudio.csv",
+            "unidades": "trofeos; horas de Guatemala (UTC-6)",
+            "conjuntos": {
+                "ajuste": {"batallas": len(ajuste), "dias_gt": sorted({f["fecha"] for f in ajuste})},
+                "validacion": {"batallas": len(validacion), "dias_gt": sorted({f["fecha"] for f in validacion})},
+            },
+            "tipo_de_dato": {
+                "trofeos_solicitudes": "real observado (muestra con sesgo de muestreo; ver decisiones.md D4)",
+                "perfil_horario": "real observado, forma relativa; la tasa absoluta es un parámetro de escenario",
+                "diferencias_referencia": "real observado; ajuste para calibrar, validación para la Parte 6",
+                "tiempo_de_espera": "no observado; es una salida de la simulación",
+            },
+        },
+        "trofeos_solicitudes": {
+            "descripcion": "Trofeos al iniciar de cada jugador en las batallas de ajuste (2 por batalla). "
+                           "Para muestrear: u ~ U(0,1) e interpolar u*100 en 'cuantiles'.",
+            "conjunto": "ajuste",
+            **{k: v for k, v in describir(trofeos).items() if k in ("n", "media", "desv", "mediana", "max")},
+            "min": trofeos[0],
+            "cuantiles": [round(percentil(trofeos, p), 2) for p in range(101)],
+            "proporcion_por_franja": {str(k): round(v / len(trofeos), 5) for k, v in sorted(por_franja.items())},
+        },
+        "perfil_horario": {
+            "descripcion": "Peso relativo de llegadas por hora de Guatemala (índice 0 = 00:00-00:59). "
+                           "Multiplicar por la tasa diaria del escenario para obtener la tasa por hora.",
+            "conjunto": "ajuste + validacion",
+            "dias": dias,
+            "peso": [round(c / sum(conteo_hora), 5) for c in conteo_hora],
+            "batallas_por_hora_promedio_en_muestra": [round(c / dias, 1) for c in conteo_hora],
+        },
+        "diferencias_referencia": {
+            "descripcion": "Diferencia absoluta de trofeos entre rivales, |r_i - r_j|.",
+            "ajuste": diferencias(ajuste),
+            "validacion": diferencias(validacion),
+        },
+    }
 
 
 def main():
-    ap = argparse.ArgumentParser(description="Estadísticos de la base del recolector")
-    ap.add_argument("--db", default=DB_DEFAULT)
-    ap.add_argument("--desde", default="2026-11-01",
-                    help="Fecha UTC desde la que se toman las batallas por franja y por hora")
-    ap.add_argument("--desde-perfil", default=None,
-                    help="Fecha UTC desde la que se arma el perfil por hora del panel")
+    ap = argparse.ArgumentParser(description="Genera parametros.json para el simulador")
+    ap.add_argument("--entrada", default=str(PROCESADOS / "batallas_estudio.csv"))
+    ap.add_argument("--salida", default=str(PROCESADOS / "parametros.json"))
     a = ap.parse_args()
 
-    if not Path(a.db).exists():
-        raise SystemExit(f"No existe la base {a.db}. Usen --db con la ruta correcta.")
-    con = sqlite3.connect(f"file:{Path(a.db).as_posix()}?mode=ro", uri=True)
-    q = lambda s: con.execute(s).fetchone()
+    p = caracterizar(leer(a.entrada))
+    Path(a.salida).write_text(json.dumps(p, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
 
-    jug, consultados, panel = q("SELECT COUNT(*), SUM(ultima_consulta IS NOT NULL), SUM(panel) FROM jugadores")
-    total, ladder, bt_min, bt_max = q("SELECT COUNT(*), SUM(es_ladder), MIN(battle_time), MAX(battle_time) FROM batallas")
-    p_min, p_max = q("SELECT MIN(ultima_consulta), MAX(ultima_consulta) FROM jugadores WHERE panel = 1")
-    print("== Estado de la base ==")
-    print(f"  Jugadores: {jug:,} ({consultados:,} consultados, {panel:,} en el panel)")
-    print(f"  Batallas: {total:,} ({ladder:,} de Trophy Road)")
-    print(f"  Rango de battle_time (UTC): {bt_min} a {bt_max}")
-    print(f"  Última consulta del panel (UTC): la más vieja {p_min}, la más reciente {p_max}")
-
-    print("\n== Diferencia absoluta de trofeos, todas las batallas de Trophy Road ==")
-    todas = diferencias(con)
-    print(fila("total", describir([d for _, _, d in todas])))
-
-    desde = a_battle_time(a.desde)
-    recientes = diferencias(con, desde)
-    print(f"\n== Por franja del jugador 'team', desde {a.desde} UTC ==")
-    franjas = {}
-    for _, t, d in recientes:
-        franjas.setdefault(t // 1000 * 1000, []).append(d)
-    for f in sorted(franjas):
-        print(fila(f"{f:,}", describir(franjas[f])))
-
-    print(f"\n== Por hora de Guatemala, desde {a.desde} UTC ==")
-    horas = {}
-    for bt, _, d in recientes:
-        horas.setdefault(hora_gt(bt), []).append(d)
-    for h in range(24):
-        print(fila(f"{h:02d}:00", describir(horas.get(h, []))))
-
-    desde_p = a_battle_time(a.desde_perfil) if a.desde_perfil else desde
-    tiempos = batallas_panel(con, desde_p)
-    print(f"\n== Perfil de actividad del panel (batallas de Trophy Road por hora de Guatemala) ==")
-    print(f"  Desde {a.desde_perfil or a.desde} UTC; {len(tiempos):,} batallas")
-    conteo = [0] * 24
-    for bt in tiempos:
-        conteo[hora_gt(bt)] += 1
-    tope = max(conteo) or 1
-    for h, n in enumerate(conteo):
-        print(f"  {h:02d}:00 {n:>6,} {'#' * round(40 * n / tope)}")
-    vacias = [h for h, n in enumerate(conteo) if n == 0]
-    if vacias:
-        print(f"  Horas sin batallas del panel: {', '.join(f'{h:02d}' for h in vacias)}")
+    t = p["trofeos_solicitudes"]
+    print(f"Trofeos de solicitudes (ajuste): n={t['n']:,}  media={t['media']:.0f}  "
+          f"P5={t['cuantiles'][5]:.0f}  mediana={t['mediana']:.0f}  P95={t['cuantiles'][95]:.0f}")
+    print("Perfil horario (peso):", " ".join(f"{h:02d}:{w:.3f}" for h, w in enumerate(p["perfil_horario"]["peso"])))
+    for c in ("ajuste", "validacion"):
+        d = p["diferencias_referencia"][c]
+        print(f"Diferencias {c:<10} n={d['n']:>6,}  media={d['media']:5.2f}  mediana={d['mediana']:4.0f}  "
+              f"p90={d['p90']:4.0f}  p99={d['p99']:4.0f}  max={d['max']}  prop_cero={d['prop_cero']:.3f}")
+    print(f"Escrito en {a.salida}")
 
 
 if __name__ == "__main__":
