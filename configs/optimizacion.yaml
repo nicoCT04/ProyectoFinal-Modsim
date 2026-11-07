@@ -1,0 +1,24 @@
+# Configuración de NSGA-II y de la búsqueda aleatoria (docs/tecnica_nsga2.md, decisiones.md D12).
+# Variables: x = (delta0, alfa, e) con delta_max = delta0 + e.
+
+escenario: optimizacion       # de configs/escenarios.yaml
+semillas_evaluacion: [1000, 1001, 1002]
+
+limites:
+  delta0: [0, 40]             # trofeos
+  alfa: [0.05, 10]            # trofeos/s
+  e: [0, 80]                  # trofeos; delta_max = delta0 + e
+
+nsga2:
+  poblacion: 40
+  generaciones: 25
+  semilla: 1
+
+aleatoria:
+  evaluaciones: 1000          # mismo presupuesto que NSGA-II (40 x 25)
+  semilla: 2
+
+hipervolumen:
+  referencia: [60, 15]        # espera media (s), diferencia media (trofeos)
+
+procesos: 0                   # 0 = todos los núcleos menos uno
