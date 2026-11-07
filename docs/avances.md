@@ -11,7 +11,7 @@
 ### Recolección del estudio (recolector SQLite)
 
 Horas en tiempo de Guatemala (UTC−6). Datos de la última línea de cada corrida
-("Listo. Consultados: X. Batallas nuevas: Y") y del `caracterizar` posterior.
+("Listo. Consultados: X. Batallas nuevas: Y") y del `diagnostico_db` posterior.
 
 | # | Fecha | Hora | Comando | Consultados | Batallas nuevas | Batallas totales | Trophy Road | Notas |
 |---|---|---|---|---|---|---|---|---|
@@ -32,3 +32,10 @@ guardó la salida de la corrida 5. "≈2,744": la corrida terminó en el tiempo 
 conserva la última consulta de cada jugador.
 
 **Recolección cerrada el 6 nov 2026.** Ver la decisión D8 sobre el sesgo cerca de cada consulta.
+
+### Preparación de los datos (6 nov 2026)
+
+- `procesar.py`: 114,079 batallas leídas → 40,338 válidas (23,798 de ajuste, 16,540 de validación).
+  Excluidas: 71,385 fuera del período, 2,348 fuera de la franja, 8 duplicadas.
+- `caracterizar.py`: `parametros.json` listo para el simulador.
+- Siguiente tarea: simulador de eventos discretos con `parametros.json` como entrada (R2).

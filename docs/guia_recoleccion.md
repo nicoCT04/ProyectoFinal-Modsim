@@ -31,14 +31,14 @@ python -m src.matchmaking.datos.recolector_cr --db "C:\Users\Owner\Downloads\cla
 Al terminar, revisar el estado:
 
 ```powershell
-python -m src.matchmaking.datos.caracterizar --db "C:\Users\Owner\Downloads\clash_royale.db" --desde-perfil 2026-11-05T16:17
+python -m src.matchmaking.datos.diagnostico_db --db "C:\Users\Owner\Downloads\clash_royale.db" --desde-perfil 2026-11-05T16:17
 ```
 
 ### Qué anotar en `docs/avances.md`
 
 Una fila por corrida: número, fecha, hora de inicio y fin, comando, y de la línea final
 `Listo. Consultados: X. Batallas nuevas: Y`. Las batallas totales y de Trophy Road salen de
-`caracterizar`. Un commit por corrida: `docs: bitácora de la corrida N del panel`.
+`diagnostico_db`. Un commit por corrida: `docs: bitácora de la corrida N del panel`.
 
 ## 3. Calendario
 
@@ -56,7 +56,7 @@ juegue más de 30 entre dos corridas.
 
 ## 4. Cierre (6 nov, después de la última corrida)
 
-1. `caracterizar` final; copiar los números a `CONTEXTO_Y_HALLAZGOS.md` (sección 7) si cambian.
+1. `diagnostico_db` final; copiar los números a `CONTEXTO_Y_HALLAZGOS.md` (sección 7) si cambian.
 2. Exportar el CSV:
    ```powershell
    python -m src.matchmaking.datos.recolector_cr --db "C:\Users\Owner\Downloads\clash_royale.db" exportar
