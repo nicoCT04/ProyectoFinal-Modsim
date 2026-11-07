@@ -13,15 +13,33 @@ Se utilizará simulación de eventos discretos y optimización multiobjetivo med
 - [x] Recolector de historiales de varios jugadores.
 - [x] Almacenamiento de respuestas originales y resumen de consultas.
 - [x] Primera consulta exitosa; la cuenta consultada devolvió un historial vacío.
-- [ ] Recolectar historiales de jugadores activos.
-- [ ] Identificar los valores que corresponden a Trophy Road.
-- [ ] Limpiar, deduplicar y exportar los datos.
+- [x] Identificar Trophy Road: `type = PvP` y `gameMode = Ladder`.
+- [x] Recolector con base SQLite, deduplicación y panel fijo (`recolector_cr.py`).
+- [x] Primera recolección: 131,408 batallas, 79,419 de Trophy Road (5 nov 2026).
+- [x] Refrescar el panel cada ~4 h hasta el 6 nov a mediodía (8 corridas, ver `docs/avances.md`).
+- [x] Exportar `data/processed/batallas.csv` (114,079 batallas de Trophy Road).
+- [ ] Generar `parametros.json`: ajuste 1–3 nov, validación 4 nov (ver `docs/decisiones.md`, D5 y D8).
 - [ ] Implementar el simulador.
 - [ ] Integrar NSGA-II.
 - [ ] Ejecutar experimentos y validación.
 - [ ] Generar tablas y gráficas.
 
 Los archivos creados para los módulos pendientes pueden estar vacíos.
+
+## Recolección del estudio
+
+La recolección usa `src/matchmaking/datos/recolector_cr.py` (solo biblioteca estándar, base
+SQLite en `data/raw/`). Los comandos, el calendario de corridas y el cierre están en
+[`docs/guia_recoleccion.md`](docs/guia_recoleccion.md); el contexto y los hallazgos, en
+[`docs/CONTEXTO_Y_HALLAZGOS.md`](docs/CONTEXTO_Y_HALLAZGOS.md).
+
+```powershell
+python -m src.matchmaking.datos.recolector_cr resumen
+python -m src.matchmaking.datos.caracterizar
+```
+
+Las secciones siguientes describen la extracción piloto con `recolectar.py`, que se conserva
+como registro pero ya no se usa para el estudio.
 
 ## Organización del código
 
