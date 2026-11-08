@@ -5,7 +5,7 @@ Cada decisión indica la fecha, qué se decidió y por qué.
 ## D1. Fuente: API oficial de Clash Royale (3 nov 2026)
 
 Se usa `/v1/players/{tag}/battlelog`, que devuelve las últimas 30 batallas de cada jugador con los
-trofeos al iniciar de **ambos** rivales. Con IP dinámica se usa el proxy de RoyaleAPI
+trofeos al iniciar de __ambos__ rivales. Con IP dinámica se usa el proxy de RoyaleAPI
 (`CR_BASE_URL=https://proxy.royaleapi.dev`). Ver `CONTEXTO_Y_HALLAZGOS.md`, secciones 2 y 4.
 
 ## D2. Recolector con base SQLite en lugar de JSON por corrida (5 nov 2026)
@@ -14,7 +14,7 @@ trofeos al iniciar de **ambos** rivales. Con IP dinámica se usa el proxy de Roy
 
 - Una sola base (`data/raw/clash_royale.db`) que se puede reanudar y detener con Ctrl+C.
 - Deduplica en el momento: el id de batalla es `battleTime` más los tags ordenados, así que la
-  misma batalla vista desde los dos jugadores se guarda una vez.
+   misma batalla vista desde los dos jugadores se guarda una vez.
 - Solo biblioteca estándar.
 
 `cliente.py` y `recolectar.py` se conservan como registro de la extracción piloto.
@@ -78,15 +78,15 @@ horario. **Ajuste: 1–3 nov. Validación (reservado): 4 nov.** El pico de 8:00�
 ## D9. Filtros y parámetros del estudio (6 nov 2026)
 
 - **Franja:** se conservan las batallas en que **ambos** jugadores están en 5,000–11,999 trofeos
-  (se excluyen 2,348). La franja de una batalla es la de su promedio de trofeos.
+   (se excluyen 2,348). La franja de una batalla es la de su promedio de trofeos.
 - **Duplicados:** misma pareja, mismos trofeos y cambio, con 2 s o menos de diferencia en
-  `battleTime` (8 casos en 1–4 nov).
+   `battleTime` (8 casos en 1–4 nov).
 - **Trofeos de las solicitudes:** cada batalla de ajuste aporta los trofeos de sus dos jugadores
-  (47,596 valores). Refleja la muestra, no la población: las franjas de 7,000–9,999 están
-  subrepresentadas (D4).
+   (47,596 valores). Refleja la muestra, no la población: las franjas de 7,000–9,999 están
+   subrepresentadas (D4).
 - **Percentiles:** interpolación lineal, igual que `numpy.percentile` por defecto.
 - **Referencias resultantes:** ajuste media 11.51, mediana 6, P90 32, P99 42, máximo 60;
-  validación media 11.65, mediana 6, P90 32, P99 42, máximo 63.
+   validación media 11.65, mediana 6, P90 32, P99 42, máximo 63.
 
 ## D10. Umbrales del experimento, fijados antes de evaluar (6 nov 2026)
 
@@ -94,9 +94,9 @@ Se fijan antes de calibrar el simulador y de correr NSGA-II, para que no se ajus
 
 | Umbral | Valor | Justificación |
 |---|---|---|
-| **D_max**: diferencia media de trofeos máxima aceptable | **15 trofeos** | La referencia real (ajuste, 1–3 nov) es 11.5. Un margen de ~30 % deja espacio para el compromiso entre espera y equilibrio, y 15 trofeos es la mitad de lo que se gana en una victoria (~30), por lo que el jugador no percibe la diferencia. Sigue por debajo del P90 real (32). |
-| **Cobertura mínima**: emparejadas / llegadas | **95 %** | Una política que deja sin rival a más de 1 de cada 20 solicitudes no es aceptable para el operador, aunque su espera media sea baja. Se mide sin contar las solicitudes que llegan en los primeros 600 s (cola vacía) ni en los últimos 300 s de la simulación (no alcanzan a emparejarse); el margen es el mismo para todas las políticas. |
-| **Reducción relevante de la espera media** | **≥ 10 %** frente a la ventana fija de referencia **y** el intervalo de confianza del 95 % de la diferencia pareada excluye el 0 | Menos de 10 % es difícil de defender como mejora práctica. Las políticas se comparan con las mismas semillas (números aleatorios comunes), por lo que la diferencia se evalúa par a par en las 30 repeticiones. |
+| __D_max__: diferencia media de trofeos máxima aceptable | __15 trofeos__ | La referencia real (ajuste, 1–3 nov) es 11.5. Un margen de ~30 % deja espacio para el compromiso entre espera y equilibrio, y 15 trofeos es la mitad de lo que se gana en una victoria (~30), por lo que el jugador no percibe la diferencia. Sigue por debajo del P90 real (32). |
+| __Cobertura mínima__: emparejadas / llegadas | __95 %__ | Una política que deja sin rival a más de 1 de cada 20 solicitudes no es aceptable para el operador, aunque su espera media sea baja. Se mide sin contar las solicitudes que llegan en los primeros 600 s (cola vacía) ni en los últimos 300 s de la simulación (no alcanzan a emparejarse); el margen es el mismo para todas las políticas. |
+| __Reducción relevante de la espera media__ | __≥ 10 %__ frente a la ventana fija de referencia __y__ el intervalo de confianza del 95 % de la diferencia pareada excluye el 0 | Menos de 10 % es difícil de defender como mejora práctica. Las políticas se comparan con las mismas semillas (números aleatorios comunes), por lo que la diferencia se evalúa par a par en las 30 repeticiones. |
 
 Una política adaptativa solo se declara mejor si cumple D_max y la cobertura mínima en el escenario
 evaluado y además alcanza la reducción relevante. Si ninguna lo logra, se reporta así.
@@ -113,7 +113,7 @@ una ventana que crece con la espera. Por eso:
 - **Ventanas fijas ±20, ±40 y ±60** = políticas de referencia (lo que pregunta el informe).
 - **Mejora** = políticas que encuentre NSGA-II, comparadas contra la base y contra las fijas.
 
-**Unidad de tiempo.** Si la tasa de llegadas y α se multiplican por k, las diferencias no cambian
+__Unidad de tiempo.__ Si la tasa de llegadas y α se multiplican por k, las diferencias no cambian
 y las esperas se dividen entre k: los datos solo identifican α / tasa. Se fija
 `tasa_media = 5 solicitudes/s` y se calibra α. Las esperas en segundos dependen de ese supuesto;
 las comparaciones relativas entre políticas no. Si el equipo mide esperas reales con cronómetro
@@ -142,7 +142,6 @@ en el juego hay muchos más jugadores con exactamente los mismos trofeos esperan
 produce una muestra de 5 solicitudes/s. Los máximos de 60–64 son casos raros (menos del 1 %) que
 una ventana de 44 no genera. Ambas cosas se declaran como limitación.
 
-
 ## D12. Configuración de la optimización (6 nov 2026)
 
 Se fija antes de correr NSGA-II. Configuración en `configs/optimizacion.yaml`; la técnica está
@@ -161,7 +160,7 @@ documentada en `docs/tecnica_nsga2.md`.
 | Hipervolumen | punto de referencia (60 s, 15 trofeos), sobre el frente factible de todas las evaluaciones | Mide la parte útil del frente: espera razonable y dentro de D_max. |
 | Paralelización | `multiprocessing.Pool` con 11 procesos (`StarmapParallelization` de pymoo) | Tiempo real en una Mac de 12 núcleos: NSGA-II 12.5 min, búsqueda aleatoria 5.2 min. |
 
-**Resultado.** Hipervolumen final: NSGA-II 540.07, búsqueda aleatoria 527.14 (+2.5 %). El de NSGA-II
+__Resultado.__ Hipervolumen final: NSGA-II 540.07, búsqueda aleatoria 527.14 (+2.5 %). El de NSGA-II
 deja de crecer desde la generación 17 (539.2 → 540.1), así que el presupuesto alcanzó. Las 344
 políticas del frente de NSGA-II y las 88 del de la búsqueda aleatoria cumplen las restricciones al
 volver a simularlas (`results/verificacion_*.csv`).
@@ -178,7 +177,7 @@ solución más cercana al punto ideal con los objetivos normalizados en esa regi
 | `nsga_menor_dif` | 15.23 | 0.198 | 35.17 | 14.73 | 7.95 | menor diferencia sin esperar más que la base |
 | `aleatoria_mejor` | 17.64 | 0.659 | 92.83 | 10.99 | 11.29 | codo del frente aleatorio (control) |
 
-**Hora pico frente a día completo.** En el escenario `optimizacion` la ventana fija ±20 domina a la
+__Hora pico frente a día completo.__ En el escenario `optimizacion` la ventana fija ±20 domina a la
 base (14.19 s y 8.74 trofeos frente a 14.83 s y 11.03). Con mucha demanda casi siempre hay un rival
 cercano; la ventana creciente ayuda en las horas de poca demanda. Por eso las candidatas se validan
 en el día completo y en baja demanda. Una vista previa con las semillas 1000–1002 (no sustituye a
@@ -198,8 +197,24 @@ y `src/matchmaking/analisis/metricas.py`.
 | Escenarios corridos | `base`, `baja_demanda`, `alta_demanda`, `revision_5s` (`configs/escenarios.yaml`) | Los cuatro del estudio; `optimizacion` no se repite aquí porque ya se usó para buscar el frente. |
 | Políticas corridas | las 4 de referencia (`base`, `fija_20`, `fija_40`, `fija_60`) y las 5 candidatas (`nsga_codo`, `nsga_menor_espera`, `nsga_intermedia`, `nsga_menor_dif`, `aleatoria_mejor`) | `fija_40` y `fija_60` se corren solo para la gráfica del frente (incumplen D_max, D10), no como referencia de la comparación pareada. |
 | Intervalo de confianza | normal, z = 1.96 (no t de Student) | Con n = 30 la diferencia frente al valor crítico de la t (df = 29, 2.045) es menor al 2 %; evita añadir `scipy` como dependencia solo para esto. |
-| Criterio de "mejora declarada" | cumple D_max y cobertura mínima (con sus propias 30 semillas) **y** reducción de espera ≥ 10 % frente a `fija_20` **y** el IC95 % de la diferencia pareada excluye el 0 | Aplica D10 tal cual, sobre los mismos datos con los que se declara cada condición. |
+| Criterio de "mejora declarada" | cumple D_max y cobertura mínima (con sus propias 30 semillas) __y__ reducción de espera ≥ 10 % frente a `fija_20` __y__ el IC95 % de la diferencia pareada excluye el 0 | Aplica D10 tal cual, sobre los mismos datos con los que se declara cada condición. |
 
 Salidas: `results/experimentos_corridas.csv` (una fila por escenario, política y semilla),
 `results/experimentos_resumen.csv` (media, desviación e IC95 % por escenario y política) y
 `results/experimentos_comparacion.csv` (cada candidata contra cada referencia, por escenario).
+
+## D14. Modificación de experimentos finales: (8 nov 2026)
+
+El perfil ahora utiliza solamente el "ajuste". Ya no implementa ajuste + validación. 
+### Corrección del perfil horario y recalibración
+
+El perfil horario de entrada se construye únicamente con los días de
+ajuste (1–3 noviembre). El 4 de noviembre se conserva como referencia
+de validación y no se utiliza para construir ese perfil.
+
+Al repetir la calibración, alfa cambió de 1.75 a 2.0 trofeos/s.
+Los valores de delta0 y delta_max se verificaron contra
+results/calibracion.json y se sincronizaron en configs/escenarios.yaml.
+
+Los resultados anteriores corresponden al perfil previo y serán
+reemplazados al regenerar la optimización y los experimentos.

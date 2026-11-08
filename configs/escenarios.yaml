@@ -26,7 +26,7 @@ escenarios:
 politicas:
   base:                    # réplica calibrada del sistema real (results/calibracion.json)
     delta0: 0
-    alfa: 1.75
+    alfa: 2.0
     delta_max: 44
   fija_20:
     delta0: 20
