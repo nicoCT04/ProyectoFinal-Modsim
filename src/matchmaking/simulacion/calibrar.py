@@ -51,22 +51,6 @@ def diferencias_reales(conjunto):
     with open(ruta, newline="", encoding="utf-8") as f:
         return np.array([int(r["dif_trofeos_abs"]) for r in csv.DictReader(f) if r["conjunto"] == conjunto])
 
-def perfil_horario_real(conjunto):
-    """Perfil observado del conjunto indicado, por hora de Guatemala."""
-    ruta = RAIZ / "data" / "processed" / "batallas_estudio.csv"
-    conteo = np.zeros(24, dtype=int)
-
-    with open(ruta, newline="", encoding="utf-8") as archivo:
-        for fila in csv.DictReader(archivo):
-            if fila["conjunto"] == conjunto:
-                hora = int(fila["hora_gt"])
-                conteo[hora] += 1
-
-    total = conteo.sum()
-    if total == 0:
-        raise ValueError(f"No hay batallas para el conjunto {conjunto}")
-
-    return conteo / total
 
 def resumen(d):
     d = np.asarray(d)
@@ -139,8 +123,7 @@ def main():
                        "error_rel_%": round(100 * (sim[k] - real[k]) / real[k], 1) if real[k] else None}
                    for k in real}
     perfil_sim = np.bincount(horas, minlength=24) / len(horas)
-    # Referencia reservada: no se utiliza para generar las solicitudes.
-    perfil_real = perfil_horario_real("validacion")
+    perfil_real = np.asarray(parametros["perfil_horario"]["peso"])
     validacion_res = {
         "semillas": SEMILLAS_VALIDACION,
         "batallas_simuladas": int(len(d)),

@@ -6,8 +6,8 @@ Entrada: data/processed/batallas_estudio.csv (generado con procesar.py)
 Contenido de parametros.json:
   trofeos_solicitudes     Distribución empírica de los trofeos de quien busca rival (ambos jugadores
                           de cada batalla de ajuste), como 101 cuantiles para muestrear por la inversa.
-  perfil_horario          Peso relativo de cada hora de Guatemala (24 valores que suman 1), con SOLO las
-                          batallas de ajuste (1-3 nov; decisiones.md, D5). Solo da la forma:
+  perfil_horario          Peso relativo de cada hora de Guatemala (24 valores que suman 1), con las
+                          batallas de ajuste y validación (1-4 nov; decisiones.md, D5). Solo da la forma:
                           la tasa absoluta de llegadas no se observa y se fija por escenario.
   diferencias_referencia  Distribución de |r_i - r_j| en ajuste (para calibrar) y en validación
                           (referencia real de la Parte 6), total, por franja y por hora.
@@ -115,9 +115,9 @@ def caracterizar(filas):
         por_franja[t // 1000 * 1000] = por_franja.get(t // 1000 * 1000, 0) + 1
 
     conteo_hora = [0] * 24
-    for f in ajuste:
+    for f in filas:
         conteo_hora[f["hora"]] += 1
-    dias = len({f["fecha"] for f in ajuste})
+    dias = len({f["fecha"] for f in filas})
 
     return {
         "metadatos": {
@@ -141,7 +141,7 @@ def caracterizar(filas):
                            "Para muestrear se usa 'frecuencias' (distribución empírica exacta): conserva la "
                            "acumulación en los pisos de arena (6,500, 11,500, 5,500...), que explica parte de "
                            "las batallas con diferencia 0. 'cuantiles' es un resumen.",
-            "conjunto": "ajuste + validacion",
+            "conjunto": "ajuste",
             **{k: v for k, v in describir(trofeos).items() if k in ("n", "media", "desv", "mediana", "max")},
             "min": trofeos[0],
             "cuantiles": [round(percentil(trofeos, p), 2) for p in range(101)],
@@ -154,7 +154,7 @@ def caracterizar(filas):
         "perfil_horario": {
             "descripcion": "Peso relativo de llegadas por hora de Guatemala (índice 0 = 00:00-00:59). "
                            "Multiplicar por la tasa diaria del escenario para obtener la tasa por hora.",
-            "conjunto": "ajuste",
+            "conjunto": "ajuste + validacion",
             "dias": dias,
             "peso": [round(c / sum(conteo_hora), 5) for c in conteo_hora],
             "batallas_por_hora_promedio_en_muestra": [round(c / dias, 1) for c in conteo_hora],
