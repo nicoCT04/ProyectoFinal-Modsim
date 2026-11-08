@@ -64,3 +64,35 @@ conserva la última consulta de cada jugador.
 - Investigación de la técnica (Parte 2) en `docs/tecnica_nsga2.md`.
 - Siguiente tarea: experimentos finales con las semillas 5000–5029 en los escenarios `base`,
   `baja_demanda`, `alta_demanda` y `revision_5s` (R4).
+
+### Experimentos finales (7 nov 2026)
+
+- `experimentos/ejecutar.py`: 1,080 corridas (4 escenarios x 9 políticas x 30 semillas nuevas,
+  5000–5029), 754 s con 9 procesos. Resultados en `results/experimentos_corridas.csv` (una fila
+  por corrida), `experimentos_resumen.csv` (media, desviación e IC95 % por escenario y política) y
+  `experimentos_comparacion.csv` (cada candidata contra `fija_20` y contra `base`, D13).
+- **`nsga_codo` es la única candidata declarada mejor que `fija_20` (D10) en los cuatro
+  escenarios**, con cobertura 1.000 y diferencia media dentro de D_max en todos:
+
+  | Escenario | Espera `fija_20` | Espera `nsga_codo` | Reducción | Diferencia media |
+  |---|---|---|---|---|
+  | base | 19.72 s | 14.58 s | 26.0 % | 11.73 |
+  | baja demanda | 38.86 s | 25.55 s | 34.3 % | 13.55 |
+  | alta demanda | 10.11 s | 8.39 s | 17.0 % | 10.19 |
+  | revisión 5 s | 21.67 s | 16.53 s | 23.7 % | 11.55 |
+
+  También reduce la espera frente a `base` (réplica calibrada del sistema real) en los cuatro
+  escenarios (7.5 % a 31.1 %). Las demás candidatas solo mejoran a `fija_20` en 1 a 3 de los 4
+  escenarios (`nsga_menor_dif` solo en baja demanda; `nsga_menor_espera` solo en alta demanda;
+  `nsga_intermedia` y `aleatoria_mejor` en 3 de 4, pero no en baja demanda).
+- `analisis/graficas.py`: las tres gráficas mínimas en `results/figuras/` (cola en el tiempo,
+  frente de Pareto contra las referencias, sensibilidad a la demanda y a la frecuencia de revisión).
+- `analisis/validacion.py`: tabla de la Parte 6 en `results/tabla_parte6.csv`. `nsga_codo` (elegida
+  por ser la única robusta en los cuatro escenarios) reproduce la distribución real de diferencias
+  del día de validación (4 nov) mejor que la propia base calibrada: media 11.73 frente a real 11.65
+  (+0.7 %, contra +6.1 % de la base); P90 24 frente a real 32 (la base da 29); P99 35 frente a real
+  42 (la base da 42, exacto, pero con más empates exactos de menos: la candidata tiene
+  `delta_max` = 39.5, más bajo que el de la base, 44).
+- 7 pruebas nuevas en `tests/test_analisis.py` (37 en total con `python -m pytest`).
+- Siguiente tarea: completar la Parte 6 con la verificación externa (cronómetro, pendiente de R1) e
+  integrar todo en el informe final (R5).

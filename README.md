@@ -20,9 +20,9 @@ Se utilizará simulación de eventos discretos y optimización multiobjetivo med
 - [x] Exportar `data/processed/batallas.csv` (114,079 batallas de Trophy Road).
 - [x] Generar `parametros.json`: ajuste 1–3 nov, validación 4 nov (ver `docs/decisiones.md`, D5, D8 y D9).
 - [x] Implementar el simulador, verificarlo y calibrarlo (`docs/modelo.md`).
-- [ ] Integrar NSGA-II.
-- [ ] Ejecutar experimentos y validación.
-- [ ] Generar tablas y gráficas.
+- [x] Integrar NSGA-II: frente de Pareto, control aleatorio y candidatas elegidas (`docs/tecnica_nsga2.md`, `decisiones.md` D12).
+- [x] Ejecutar experimentos y validación: 30 semillas nuevas por condición, cuatro escenarios, comparación contra D10 (`decisiones.md` D13).
+- [x] Generar tablas y gráficas (`results/experimentos_*.csv`, `results/tabla_parte6.csv`, `results/figuras/`).
 
 Los archivos creados para los módulos pendientes pueden estar vacíos.
 

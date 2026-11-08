@@ -184,3 +184,22 @@ cercano; la ventana creciente ayuda en las horas de poca demanda. Por eso las ca
 en el día completo y en baja demanda. Una vista previa con las semillas 1000–1002 (no sustituye a
 los experimentos) muestra que `nsga_menor_espera` supera D_max fuera de la hora pico (16.5 en el día
 completo, 20.2 en baja demanda) y que `nsga_codo` cumple y mejora a la base en los tres escenarios.
+
+## D13. Experimentos finales: referencia de D10, semillas y nivel de confianza (7 nov 2026)
+
+Se fija antes de correr el experimento final. Código en `src/matchmaking/experimentos/ejecutar.py`
+y `src/matchmaking/analisis/metricas.py`.
+
+| Elemento | Valor | Justificación |
+|---|---|---|
+| "Ventana fija de referencia" de D10 | `fija_20` | Es la única ventana fija (±20/±40/±60) cuya diferencia media cumple D_max = 15 en el escenario base (`docs/modelo.md`: ±20 da 8.72; ±40 da 19.17; ±60 da 28.29). Comparar una candidata contra una referencia que ya incumple D_max no respondería la pregunta del estudio. |
+| Referencia adicional | `base` (réplica calibrada del sistema real, D11) | Para responder también cuánto mejora cada candidata frente al sistema real, no solo frente al control fijo. |
+| Semillas de los experimentos | 5000–5029 (30, nuevas) | Distintas de las de calibración (101–102, 201–205) y de optimización (1000–1002), para no validar las candidatas con las semillas que NSGA-II usó para encontrarlas. Las mismas 30 para todas las políticas de un escenario (números aleatorios comunes); la comparación pareada usa el mismo índice de semilla en candidata y referencia. |
+| Escenarios corridos | `base`, `baja_demanda`, `alta_demanda`, `revision_5s` (`configs/escenarios.yaml`) | Los cuatro del estudio; `optimizacion` no se repite aquí porque ya se usó para buscar el frente. |
+| Políticas corridas | las 4 de referencia (`base`, `fija_20`, `fija_40`, `fija_60`) y las 5 candidatas (`nsga_codo`, `nsga_menor_espera`, `nsga_intermedia`, `nsga_menor_dif`, `aleatoria_mejor`) | `fija_40` y `fija_60` se corren solo para la gráfica del frente (incumplen D_max, D10), no como referencia de la comparación pareada. |
+| Intervalo de confianza | normal, z = 1.96 (no t de Student) | Con n = 30 la diferencia frente al valor crítico de la t (df = 29, 2.045) es menor al 2 %; evita añadir `scipy` como dependencia solo para esto. |
+| Criterio de "mejora declarada" | cumple D_max y cobertura mínima (con sus propias 30 semillas) **y** reducción de espera ≥ 10 % frente a `fija_20` **y** el IC95 % de la diferencia pareada excluye el 0 | Aplica D10 tal cual, sobre los mismos datos con los que se declara cada condición. |
+
+Salidas: `results/experimentos_corridas.csv` (una fila por escenario, política y semilla),
+`results/experimentos_resumen.csv` (media, desviación e IC95 % por escenario y política) y
+`results/experimentos_comparacion.csv` (cada candidata contra cada referencia, por escenario).
