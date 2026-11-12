@@ -199,6 +199,28 @@ print(r["espera_media"], r["dif_media"], r["cobertura"])
 de D10 están en `configs/escenarios.yaml`. El modelo completo (diagrama, variables, unidades,
 pseudocódigo y verificación) está en [`docs/modelo.md`](docs/modelo.md).
 
+## Experimentos finales y demo en vivo
+
+Experimento completo (R4): 4 escenarios x 9 políticas x 30 semillas nuevas, resultados en
+`results/experimentos_*.csv` y `results/tabla_parte6.csv`. Tarda ~12-13 min con varios
+procesos.
+
+```powershell
+python -m src.matchmaking.experimentos.ejecutar
+```
+
+Para la demo en vivo (sin esperar 12 minutos y sin pisar los CSV del experimento completo):
+
+```powershell
+python -m src.matchmaking.experimentos.ejecutar --rapido        # ~20 s, solo escenario base
+python -m src.matchmaking.experimentos.demo_emergencia          # ~70 s, los 4 escenarios
+```
+
+Ambos corren el simulador de verdad (no muestran resultados guardados) y no escriben en
+`results/`, salvo `--rapido`, que sí sobrescribe `results/experimentos_*.csv` con sus 3
+semillas: no correrlo después de generar el experimento completo sin volver a correr
+`ejecutar.py` sin flags.
+
 ## Trabajo paralelo del equipo
 
 Mientras se completa la recolección:
